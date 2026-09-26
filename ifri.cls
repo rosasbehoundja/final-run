@@ -214,18 +214,18 @@ frame=leftline
 
 \newcommand\dedicace{\chapter*{Dedication}\addcontentsline{toc}{chapter}{Dedication}}
 \newcommand\remerciements{\chapter*{Acknowledgements}\addcontentsline{toc}{chapter}{Acknowledgements}}
-\newcommand\introduction{\chapter*{General Introduction}\addcontentsline{toc}{chapter}{Introduction}}
-\newcommand\conclusion{\chapter*{General Conclusion}\addcontentsline{toc}{chapter}{Conclusion}}
+\newcommand\introduction{\chapter*{Introduction}\addcontentsline{toc}{chapter}{Introduction}}
+\newcommand\conclusion{\chapter*{Conclusion}\addcontentsline{toc}{chapter}{Conclusion}}
 \newcommand\resume{\chapter*{}\addcontentsline{toc}{chapter}{Abstract}}
 \newcommand\annexe{\chapter*{}\addcontentsline{toc}{chapter}{Appendices}}
 
-%\renewcommand\glsaddall{\chapter*{Glossary}\addcontentsline{toc}{chapter}{Glossary}}
+% \renewcommand\glsaddall{\chapter*{Glossary}\addcontentsline{toc}{chapter}{Glossary}}
 
-%\newcommand\resume{\subsubsection*{}\addcontentsline{toc}{chapter}{Abstract}}
+% \newcommand\resume{\subsubsection*{}\addcontentsline{toc}{chapter}{Abstract}}
 
 \renewcommand\printglossaries{\chapter*{Glossary}\addcontentsline{toc}{chapter}{Glossary}}
 
-%\renewcommand\printsigles{\chapter*{Acronyms and Abbreviations}\addcontentsline{toc}{chapter}{Acronyms and Abbreviations}}
+\newcommand\printsigles{\chapter*{Acronyms and Abbreviations}\addcontentsline{toc}{chapter}{Acronyms and Abbreviations}}
 
 
 \RequirePackage{fancyhdr}

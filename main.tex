@@ -94,13 +94,21 @@
 \newpage
 
 % Acronyms and abbreviations
+% Include every defined entry in the front matter, even before its first use in
+% the thesis body.
+\glsaddall
 \setglossarystyle{altlist}
-\printglossary[title=List of Acronyms, toctitle=List of Acronyms, type=\acronymtype]
-\newpage
+\printglossary[
+  type=\acronymtype,
+  title={Acronyms and Abbreviations},
+  toctitle={Acronyms and Abbreviations}
+]
+\clearpage
 
 % Main glossary
-%\setglossarystyle{super}
-%\printglossary[type=main]
+\setglossarystyle{super}
+\printglossary[type=main,title={Glossary},toctitle={Glossary}]
+\clearpage
 
 
 \pagenumbering{arabic}
