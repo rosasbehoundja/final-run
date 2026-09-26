@@ -1,58 +1,335 @@
-% Open with the review scope, actual search dates and terms, inclusion criteria,
-% and reference-tracing method. Do not call the review systematic unless the
-% reported procedure supports that description.
+This chapter reviews the research most relevant to MPVRP-CC. It brings
+together two lines of work: routing models that account for repeated trips,
+multiple products, and preparation activities; and solution methods that
+combine routing decisions with constraint programming. The purpose is to
+identify the foundations of this study and explain how its questions relate
+to existing contributions.
+
+The review is thematic rather than exhaustive. It draws on selected routing
+surveys, application studies, and papers on CP representations. The comparison
+focuses on the decisions being optimized, the operational meaning of cleaning
+or setup, and the role of the solution method. These distinctions matter
+because similar terms can describe different mathematical problems.
 
 \section{Relevant routing variants}\label{sec:routing-variants}
-% Organize the comparison by operational feature: repeated trips, multiple
-% products, heterogeneous fleets, multiple depots, split deliveries, and rich
-% VRPs. Distinguish supplying depots from home garages.
+
+\subsection{Multiple trips}
+
+In a multi-trip routing problem, a vehicle can carry out more than one trip
+within the planning horizon. Cattaruzza, Absi, and
+Feillet~\cite{cattaruzza2016multipletrips} survey this family, its formulations,
+and its exact and heuristic methods. They also examine related routing
+settings in which repeated vehicle use is allowed. Their review shows that
+multiple trips are a structural feature shared by several application areas,
+rather than a single narrowly defined problem.
+
+For the present study, the important consequence is that trips assigned to
+the same vehicle cannot always be evaluated independently. Once the previous
+load affects the preparation for the next one, the order of trips becomes
+part of the cost calculation. Multi-trip routing therefore provides the
+setting for the changeover question, but allowing several trips does not
+by itself specify how product transitions should be charged.
+
+\subsection{Multiple products and operational constraints}
+
+Multi-product routing introduces distinctions between the goods being
+transported. These distinctions can affect loading, compatibility, and the
+allocation of vehicle capacity. Multi-compartment routing is one way to
+represent the simultaneous transport of products that must remain separate;
+the olive-oil application of Lahyani et
+al.~\cite{lahyani2015oilmulticompartment} illustrates this connection.
+However, carrying several products in separate compartments and carrying
+one product after another are different decisions. MPVRP-CC emphasizes the
+latter interaction between successive loads.
+
+Other features concern the resources available to serve demand. Vehicles
+may have different capacities, several depots may supply products, and a
+customer's demand may be divided between deliveries. The broader routing
+literature discusses such extensions and the ways they change the
+structure of a plan~\cite{toth2014vehicle,wen2010rich}. For MPVRP-CC, their
+importance lies in their interaction: the available stock can influence
+where a vehicle loads, capacity can influence how deliveries are grouped,
+and those choices can affect which product transitions occur.
+
+A useful distinction is between a vehicle's home location and a loading
+depot. Assigning a vehicle to a home garage does not necessarily determine
+where it obtains every load. Likewise, the presence of several products does
+not imply that every station requires all of them. These details must be
+specified when comparing models; otherwise, two descriptions that both use
+``multi-product'' or ``multi-depot'' may conceal different decision spaces.
+The formal conventions adopted in this thesis are given in
+Section~\ref{sec:problem-definition}.
+
+\subsection{Rich vehicle routing problems}
+
+Lahyani, Khemakhem, and Semet~\cite{lahyani2015taxonomy} organize rich vehicle
+routing research through a taxonomy and a discussion of its definition.
+Wen's thesis~\cite{wen2010rich} also addresses rich routing applications.
+These works provide a framework for discussing models that bring together
+several operational features, rather than studying each extension in
+isolation.
+
+MPVRP-CC belongs within this broader perspective because its routing,
+loading, capacity, stock, and product-sequencing decisions interact. This
+classification describes its scope; it does not establish novelty. The
+relevant comparison is whether existing studies already represent the same
+preparation mechanism and the same set of operational decisions.
 
 \section{Cleaning and changeover costs}\label{sec:cleaning-changeover}
-% For each close study: setting -> decisions -> setup trigger -> cost/time
-% treatment -> relevant difference. Preserve distinctions between vehicle
-% cleaning, cargo succession, collection cleaning, and production-line setups.
 
-\begin{table}[H]
+\subsection{Sequence-dependent preparation}
+
+The idea of making preparation depend on the preceding activity is well
+established outside routing. Haase~\cite{haase1994setup}, for example, studies
+capacitated lot-sizing with sequence-dependent setup costs. The connection
+to this thesis is the dependence on order: the cost of starting an activity
+can depend on the activity completed immediately before it.
+
+Transferring this idea to routing requires specifying what is prepared and
+when. A production setup changes the state of a production resource; a
+vehicle changeover concerns the preparation for another load. A monetary
+charge must also be distinguished from a preparation duration or a
+prohibited transition. These mechanisms may coexist, but they affect the
+model in different ways. A cost changes the objective, a duration can affect
+scheduling feasibility, and an incompatibility excludes an operation unless
+an appropriate preparation action is performed.
+
+\subsection{Vehicle and compartment cleaning}
+
+Lahyani et al.~\cite{lahyani2015oilmulticompartment} study multi-period
+olive-oil collection with compartmented vehicles. A compartment carrying
+the lowest grade requires cleaning before a superior grade is loaded, and
+the formulation includes a cleaning charge. This is a close precedent:
+product history affects preparation on the transport resource itself.
+MPVRP-CC instead concerns deliveries and product-dependent costs between
+successive loads. The comparison therefore concerns the operating structure
+and transition rule, not the introduction of cleaning into routing for the
+first time.
+
+Chokanat, Pitakaso, and Sethanan~\cite{agriengineering1010006} study raw-milk
+transportation with an objective that includes transportation and truck and
+tank cleaning costs. They propose a modified differential evolution method.
+The study is relevant because cleaning is part of the economic evaluation
+of a transport plan. However, the presence of a cleaning charge alone does
+not establish that the charge depends on an ordered pair of different
+products. It is therefore treated here as a cleaning-cost precedent, rather
+than as evidence of an identical changeover mechanism.
+
+\subsection{Cleaning in maritime routing}
+
+Tamburini, Lange, and Pisinger~\cite{TAMBURINI2025104019} study tramp ship
+routing and scheduling in a setting with contract and spot cargoes. Their
+model combines several operational decisions, including speed, chartering,
+bunkering, and cleaning, and is solved using column generation. It extends
+the comparison beyond road transport and illustrates the integration of
+preparation activities into a rich routing and scheduling problem.
+
+This connection is important, but similarity at the level of an application
+description does not establish equivalence between formulations. A cleaning
+state or a particular cleaning rule should not automatically be interpreted
+as an arbitrary product-to-product cost matrix. The present comparison
+therefore identifies this work as a related integrated model without
+asserting that it is either identical to, or unable to represent, MPVRP-CC.
+
+\subsection{Production setups coupled with routing}
+
+Miranda et al.~\cite{MIRANDA2018211} investigate a rich production-routing
+problem motivated by a furniture manufacturer. It includes multiple
+products, sequence-dependent setup times, a heterogeneous fleet, and delivery
+requirements. Their decomposition heuristic iterates between a subproblem
+for production and customer assignment and a routing subproblem, with
+information from routing used to revise the first subproblem.
+
+Here, the sequence-dependent preparation takes place on the production
+line. Its effect on distribution is transmitted through the coordination of
+production and delivery. In MPVRP-CC, the preparation concerns the vehicle
+between loads. This difference identifies the resource whose history must
+be represented. The study nevertheless offers a useful methodological
+comparison because it addresses interacting decisions through decomposition.
+
+\subsection{Synthesis}
+
+Table~\ref{tab:cleaning-literature} summarizes the mechanisms relevant to this
+review. It is a comparison of selected features, not a claim that the papers
+have otherwise equivalent assumptions. In particular, a study can be closely
+related through its preparation mechanism while differing substantially in
+its demand, loading, or scheduling structure.
+
+\begin{table}[htbp]
   \centering
-  \caption{Comparison of cleaning and changeover mechanisms in related work}
+  \small
+  \caption{Preparation mechanisms in selected related studies}
   \label{tab:cleaning-literature}
-  \begin{tabularx}{\textwidth}{@{}p{0.20\textwidth}XXX@{}}
+  \begin{tabularx}{\textwidth}{@{}p{0.22\textwidth}XX@{}}
     \toprule
-    Study & Operational setting & Changeover mechanism & Relation to MPVRP-CC \\
+    Study & Relevant mechanism & Main distinction for this thesis \\
     \midrule
-    % Add one verified row per study. Use ``not reported'' for unverified facts.
-    \emph{To be completed} & & & \\
+    Lahyani et al.~\cite{lahyani2015oilmulticompartment}
+      & Compartment cleaning linked to previously carried oil grade
+      & Multi-period collection with compartments \\[0.5em]
+    Chokanat et al.~\cite{agriengineering1010006}
+      & Truck and tank cleaning charges
+      & Pairwise product dependence not established in this comparison \\[0.5em]
+    Tamburini et al.~\cite{TAMBURINI2025104019}
+      & Cleaning integrated with ship routing and scheduling
+      & Maritime operating structure; model equivalence not asserted \\[0.5em]
+    Miranda et al.~\cite{MIRANDA2018211}
+      & Sequence-dependent production setup times
+      & Preparation occurs on the production line \\
     \bottomrule
   \end{tabularx}
 \end{table}
 
+The common lesson is that preparation can be part of an optimization model
+rather than a fixed expense added after planning. The remaining task is to
+identify which decisions can change that expense. For this thesis, the focus
+is the assignment and succession of product-carrying operations, and the
+trade-off between their changeover costs and travel costs.
+
 \section{Solution methods}\label{sec:solution-methods}
 
 \subsection{Exact methods}
-% Compare exact formulations and what their reported runs establish.
+
+Exact methods provide a way to search for an optimal solution and, when the
+search is completed with an appropriate bound, certify its quality.
+Mathematical formulations are also useful for establishing reference
+solutions and comparing alternative algorithms. The routing literature
+contains both exact and heuristic treatments of multi-trip
+problems~\cite{cattaruzza2016multipletrips}.
+
+The selected application studies illustrate different exact approaches.
+Lahyani et al.~\cite{lahyani2015oilmulticompartment} strengthen their integer
+formulation with valid inequalities in a branch-and-cut algorithm.
+Tamburini et al.~\cite{TAMBURINI2025104019} use column generation, with vessel
+routes represented by columns. These approaches should be distinguished
+from simply giving a formulation to a general-purpose solver: they exploit
+the structure of the problem in different ways.
+
+In this thesis, the MILP is used as a reference model. Its computational
+results must be interpreted according to the solver's status and bounds.
+A feasible solution returned at a time limit is a useful baseline, but is
+not necessarily optimal. This distinction prevents a comparison against a
+MILP incumbent from being presented as a comparison against a proven optimum.
 
 \subsection{Heuristics and hybrid methods}
-% Explain construction, improvement, decomposition, and hybrid approaches.
+
+Laporte et al.~\cite{laporte2000heuristics} review classical and modern
+heuristics for vehicle routing, including route-construction approaches and
+tabu search. Their survey provides background for the distinction between
+building a feasible plan and improving an existing plan. A heuristic can
+make selected decisions quickly, but its output does not in general provide
+an optimality certificate.
+
+For rich problems, decomposition can separate decisions that are difficult
+to optimize simultaneously. Miranda et al.~\cite{MIRANDA2018211} provide an
+example in which production and routing subproblems exchange information
+iteratively. The way this exchange is organized matters: fixing a decision
+once and revisiting it during the search lead to different opportunities for
+improvement. This is a useful distinction when describing the construction
+stage developed for MPVRP-CC.
+
+Sacramento, Solnon, and Pisinger~\cite{sacramento2020feeder} combine CP with
+adaptive large neighbourhood search for feeder-vessel operations in
+multi-terminal ports. CP is used to intensify the search when a new
+best-known solution is found. Their study shows how a constraint model can
+operate within a heuristic framework, rather than only as a standalone
+solver. It concerns a port scheduling setting and does not supply a model
+of product changeovers for the present problem.
+
+These studies motivate examining how tasks are divided between a heuristic
+and an optimization model. They do not imply that a particular combination
+will always perform better. For MPVRP-CC, the construction choices and the
+decisions left to CP must be made explicit, and the complete procedure must
+be evaluated under a common computational budget.
 
 \subsection{Constraint programming for routing}
-% Compare circuit-based and sequence-based routing representations. Keep
-% interval-based and insertion-based sequence variables distinct.
+
+CP has a long-standing role in routing research. Shaw~\cite{shaw1998constraint}
+uses large neighbourhood search in which related visits are removed from a
+plan and reinserted through constraint-based search. This work establishes
+an early connection between routing improvement and CP. It also shows why
+CP-based routing should not be presented as a new methodological category
+introduced by this thesis.
+
+Different CP representations emphasize different aspects of a route.
+Vali and Salimifard~\cite{vali2017mtsp} model the multiple traveling salesman
+problem using interval variables and global constraints. Their work offers
+a scheduling-oriented representation of tours. Vismara and
+Briot~\cite{vismara2018circuit} propose the \texttt{WeightedSubCircuits}
+constraint, which represents several disjoint circuits covering selected
+vertices under a total-cost bound. This is a circuit-based alternative,
+with a different representation from the sequence variables used here.
+
+Delecluse, Schaus, and Van Hentenryck~\cite{delecluse2022sequence} introduce
+an insertion-based sequence-variable domain for routing. It supports search
+on partial tours and constraints for capacities and time windows. Their
+experiments include dial-a-ride, patient transportation, and the asymmetric
+traveling salesman problem with time windows. Their later
+preprint~\cite{delecluse2025sequence} formalizes the domain, its operations,
+and consistency notions, and discusses optional visits and insertion-based
+search.
+
+For MPVRP-CC, the interest of this representation is that the order of
+operations is itself a decision with an associated transition cost. However,
+a suitable variable domain is only one part of a solution method. The model
+must still express the relevant operational rules, account for costs
+correctly, and provide an effective search strategy. Evidence that sequence
+variables work well on another routing problem is motivation for this
+investigation, not evidence of their performance on MPVRP-CC.
 
 \section{Research gap}\label{sec:research-gap}
-% Build the claim from a verified feature matrix. Check whether a general model
-% already contains MPVRP-CC as a special case; a new acronym is not evidence of
-% novelty.
 
-\begin{table}[H]
+The reviewed literature establishes three foundations for this thesis.
+First, repeated trips and multiple products are established routing
+features. Second, cleaning and sequence-dependent preparation already occur
+in transport and integrated production-routing studies. Third, CP has been
+used both directly and within hybrid methods, with several representations
+available for routing and sequencing.
+
+Accordingly, the contribution sought here is not the introduction of
+cleaning into routing in general, nor the first use of CP for routing. The
+study focuses on a specified delivery problem in which product transitions
+between successive loads contribute to the objective, together with travel
+costs. It examines a solution approach based on CP and sequence variables
+and evaluates the consequences of including those transition costs in
+planning.
+
+The selected papers provide relevant components and precedents, but the
+comparisons above do not establish that their models and experiments answer
+this precise combination of questions. This is a bounded research position:
+it does not claim that no existing general formulation could express the
+problem as a special case. The definition in
+Section~\ref{sec:problem-definition} is therefore essential to understanding
+what is being studied and to making subsequent comparisons meaningful.
+
+Table~\ref{tab:research-gap} connects the literature to the questions pursued
+in this thesis. Rather than interpreting unverified features as absent, it
+states what the reviewed work contributes and what will be assessed here.
+
+\begin{table}[htbp]
   \centering
-  \caption{Feature comparison used to establish the research gap}
+  \small
+  \caption{Relationship between the reviewed literature and this study}
   \label{tab:research-gap}
-  \resizebox{\textwidth}{!}{%
-  \begin{tabular}{@{}lcccccccc@{}}
+  \begin{tabularx}{\textwidth}{@{}XX@{}}
     \toprule
-    Study & Routes & Repeated trips & Products & Stock & Split delivery & History dependence & Cost/time & Method \\
+    Foundation in the literature & Question pursued in this thesis \\
     \midrule
-    \emph{To be completed} & & & & & & & & \\
+    Multi-trip and rich routing models
+      & How should the delivery, loading, and product-transition decisions
+        be represented together? \\[0.5em]
+    Cleaning charges and sequence-dependent preparation
+      & How do routes, product sequences, and total costs change when
+        changeovers enter the planning objective? \\[0.5em]
+    CP routing representations and hybrid methods
+      & How effectively does the proposed sequence-variable approach solve
+        the specified problem compared with a MILP baseline? \\
     \bottomrule
-  \end{tabular}}
+  \end{tabularx}
 \end{table}
+
+The next chapter introduces the concepts needed to understand the models.
+The Methodology chapter then defines MPVRP-CC and explains the approach
+actually developed. In particular, any choices fixed before CP search must
+be identified so that experimental conclusions refer to the decision space
+that was explored.

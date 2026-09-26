@@ -17,28 +17,89 @@ support the expected growth in freight movements~\cite{uneca2022transport}.
 Alongside these infrastructure needs, businesses face a practical question:
 how can they make effective use of the vehicles available to them?
 
-Route planning addresses part of this question. It determines which vehicles
-serve which customers and in what order, while respecting requirements such
-as vehicle capacity~\cite{toth2014vehicle}. When vehicles carry different
-products over successive trips, however, distance alone may not reflect the
-full cost of a plan. A vehicle may require cleaning before its next load,
-and the preparation needed can depend on the product carried previously.
-These \emph{changeover costs} can make a short route more expensive overall.
+Vehicle routing is a recurring responsibility in both private businesses
+and public organizations. It is not limited to companies whose main activity
+is transport: producers and distributors must also organize the movement of
+physical goods. Examples include petroleum distribution, chemicals, food,
+agriculture, pharmaceuticals, and waste collection. These activities differ
+in their products, customers, and operating conditions, but they share a
+planning challenge: assigning work to a limited fleet and choosing the order
+in which locations should be served~\cite{toth2014vehicle,wen2010rich}.
+
+A route plan determines more than the roads a vehicle follows. It also
+coordinates customer visits, the quantities carried, and the use of the
+fleet. A geographically short route may be unsuitable if its load exceeds
+vehicle capacity or if the required products are unavailable at the chosen
+loading point. In practice, planners must balance these requirements with
+cost and service objectives. Vehicle routing research studies how such
+decisions can be made together, under different operational
+conditions~\cite{lahyani2015taxonomy}.
+
+The planning task becomes more involved when a vehicle performs several
+trips. After completing one set of deliveries, it can load again and serve
+other customers. Its work therefore consists of a succession of loading,
+travel, and delivery operations rather than a single isolated tour.
+Multi-trip routing studies examine this repeated use of vehicles and its
+consequences for planning~\cite{cattaruzza2016multipletrips}. When successive
+loads contain different products, their order introduces a further decision.
+
+For some products, changing a vehicle's load requires cleaning or other
+preparation. Consider, as an illustration, a bulk-delivery vehicle that has
+just carried a product whose residues are unsuitable for the next load.
+Preparing it for that load may incur an additional cost. The preparation
+required can depend on both the previous and the next product, and the
+reverse transition need not have the same cost. These expenses are referred
+to here as \emph{changeover costs}.
+
+This dependence on product order creates a trade-off. Grouping deliveries
+of the same product may reduce changeovers but require more travel, whereas
+serving nearby customers consecutively may involve several product changes.
+The preferred plan depends on the combined costs. This motivates examining
+changeovers as part of route planning, so that the cost of preparing a
+vehicle is considered alongside the cost of moving it.
 
 \section*{Problem statement}
 \addcontentsline{toc}{section}{Problem statement}
 
-Previous routing studies have considered product-related cleaning, including
-in olive-oil collection~\cite{lahyani2015oilmulticompartment}. This thesis
-examines a setting in which vehicles load and deliver several products over
-successive trips, with a cost attached to product changes. We call this the
-\gls{mpvrpcc}. The task is to meet delivery requirements while controlling
-both travel and changeover costs.
+Cleaning requirements are already present in routing research. For example,
+Lahyani et al. study olive-oil collection with compartment cleaning, while
+Tamburini et al. include cleaning in a rich ship-routing and scheduling
+model~\cite{lahyani2015oilmulticompartment,TAMBURINI2025104019}. These works
+provide important precedents, but their operating settings and preparation
+rules differ. The question addressed here is how to represent product
+changes between successive trips in the delivery setting defined in this
+thesis, and how those costs influence the resulting decisions.
 
-The study investigates \gls{cp}, which expresses operational requirements as
-constraints that a solution must satisfy. It focuses on sequence variables,
-which represent the selection and order of operations in a
-sequence~\cite{delecluse2022sequence}.
+The problem involves stations requiring different products, depots with
+available stock, and a fleet that can perform repeated loading and delivery
+operations. A plan must satisfy demand, respect stock and vehicle capacity,
+and determine how deliveries are assigned and ordered. In addition, the
+product previously carried by a vehicle affects the cost of preparing its
+next load. We refer to this setting as the \gls{mpvrpcc}. Its objective
+combines travel and changeover costs.
+
+These decisions are connected. Changing the order of two trips can alter
+both the travel needed between them and the preparation required at the next
+loading operation. Assigning a trip to another vehicle can change the
+product sequence of both vehicles. Consequently, a plan selected only for
+its travel cost may no longer be attractive when its changeovers are
+included. Understanding this interaction requires comparing complete plans
+under a consistent measure of total cost.
+
+The study investigates \gls{cp} as a way to express these operational rules
+and search for feasible plans. It focuses on sequence variables, which
+represent the selection and ordering of operations. Previous research has
+applied this representation to routing problems~\cite{delecluse2022sequence}.
+Here, the aim is to examine its usefulness for MPVRP-CC, including the
+representation of product transitions. This requires assessing both the
+quality of the solutions obtained and the computational effort needed to
+find them.
+
+A \gls{milp} formulation provides a reference for the comparison. Alongside
+this comparison of solution methods, the study examines the effect of
+including changeover costs in planning. The two evaluations address different
+questions: whether the proposed approach performs effectively, and whether
+modeling these costs changes the decisions it produces.
 
 The central research question is:
 \begin{quote}
@@ -49,7 +110,7 @@ This question is examined through three specific questions:
 \begin{enumerate}
   \item How can the problem's operational constraints and changeover costs
         be represented using CP and sequence variables?
-  \item How does the proposed approach compare with a \gls{milp} baseline
+  \item How does the proposed approach compare with a MILP baseline
         in terms of feasible solutions found, total cost, and computation time?
   \item How do vehicle routes, product sequences, and total modeled costs
         change when changeover costs are included in planning?
