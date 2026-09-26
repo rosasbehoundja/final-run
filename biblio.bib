@@ -1,6 +1,375 @@
-@article{ehrig2006graph,
-  title={Graph Transformations},
-  author={Ehrig, Andrea Corradini Hartmut and Ribeiro, Ugo Montanari Leila and Rozenberg, Grzegorz},
-  year={2006},
-  publisher={Springer}
+% MPVRP-CC references — Revision 3 — 26 September 2026
+% Companion: mpvrp_cc_thesis_writing_plan_revised_v3.md
+% Exact eight-part thesis structure and section-to-citation map follow.
+% Entries appear once, grouped by their primary role. Reuse their keys elsewhere.
+% Comments organize this source file; your LaTeX bibliography style controls output.
+%
+% 1. INTRODUCTION
+% 1.1 Context and Motivation
+%   toth2014vehicle wen2010rich lahyani2015oilmulticompartment TAMBURINI2025104019
+% 1.2 Problem Statement
+%   lahyani2015taxonomy lahyani2015oilmulticompartment TAMBURINI2025104019
+% 1.3 Objectives
+%   Own objectives; cite adopted concepts only where needed.
+% 1.4 Thesis Organization
+%   No external reference normally needed.
+%
+% 2. LITERATURE REVIEW
+% 2.1 Relevant Routing Variants
+%   cattaruzza2016multipletrips lahyani2015taxonomy wen2010rich toth2014vehicle
+% 2.2 Cleaning and Changeover Costs
+%   haase1994setup lahyani2015oilmulticompartment TAMBURINI2025104019 agriengineering1010006 MIRANDA2018211
+% 2.3 Solution Methods
+%   laporte2000heuristics sacramento2020feeder lahyani2015unified shaw1998constraint vali2017mtsp vismara2018circuit delecluse2022sequence delecluse2025sequence
+% 2.4 Research Gap
+%   Use the studies actually compared in the feature matrix.
+%
+% 3. THEORETICAL BACKGROUND
+% 3.1 Routing Problems
+%   flood1956tsp toth2014vehicle cattaruzza2016multipletrips lahyani2015taxonomy haase1994setup
+% 3.2 Optimization Methods
+%   toth2014vehicle laporte2000heuristics
+% 3.3 Constraint Programming
+%   rossi2006handbook vali2017mtsp vismara2018circuit delecluse2022sequence delecluse2025sequence
+%
+% 4. METHODOLOGY
+% 4.1 Problem Definition
+%   mpvrpccProject; own specification and genuinely adopted model sources.
+% 4.2 MILP Model
+%   Own formulation; cite sources of adapted equations, if any.
+% 4.3 Proposed Approach
+%   delecluse2022sequence delecluse2025sequence maxicp maxicpDocs minicpTransitionCost laporte2000heuristics
+% 4.4 Experimental Setup
+%   maxicp maxicpDocs gurobiDocs mpvrpccProject
+%
+% 5. RESULTS AND DISCUSSION
+% 5.1 Method Comparison
+%   Own validated outputs; gurobiDocs for solver-status interpretation.
+% 5.2 Effect of Changeover Costs
+%   Own controlled experiments; lahyani2015oilmulticompartment TAMBURINI2025104019 for context.
+% 5.3 Discussion and Limitations
+%   Own evidence and the specific related studies being compared.
+%
+% 6. CONCLUSION AND FUTURE WORK
+% Conclusion and Future Work
+%   Primarily internal cross-references; cite specific proposed extensions if needed.
+%
+% 7. REFERENCES
+% References
+%   One bibliography; reuse keys across sections, without duplicating entries.
+% Writing guidance
+%   morleyPhrasebank knuth1989writing; not evidence for routing claims.
+%
+% 8. APPENDICES
+% A. Data Formats
+%   Own schemas; mpvrpccProject if documenting published formats.
+% B. Instance Generator
+%   Own generator and seeds; cite any adapted generation procedure.
+% C. Solution Checker
+%   Own checking algorithm and tolerances.
+% D. Visualization Tool
+%   Own screenshots; attribute any external assets actually used.
+% E. Supplementary Model Details
+%   minicpTransitionCost maxicpDocs, where relevant; sources of adapted equations.
+% F. Supplementary Experimental Details
+%   Own logs and outputs; gurobiDocs maxicpDocs where relevant.
+%
+
+% 1. INTRODUCTION — general context
+
+@book{toth2014vehicle,
+  editor = {Toth, Paolo and Vigo, Daniele},
+  title = {Vehicle Routing: Problems, Methods, and Applications},
+  edition = {2},
+  publisher = {Society for Industrial and Applied Mathematics},
+  year = {2014},
+  doi = {10.1137/1.9781611973594},
+  url = {https://doi.org/10.1137/1.9781611973594}
 }
+
+@phdthesis{wen2010rich,
+  author = {Wen, Min},
+  title = {Rich Vehicle Routing Problems and Applications},
+  school = {Technical University of Denmark, DTU Management},
+  year = {2010},
+  address = {Kgs. Lyngby, Denmark},
+  type = {PhD thesis},
+  number = {8.2010},
+  isbn = {978-87-90855-89-5},
+  url = {https://orbit.dtu.dk/en/publications/rich-vehicle-routing-problems-and-applications/}
+}
+
+% 2. LITERATURE REVIEW — related problems and methods
+
+@article{lahyani2015taxonomy,
+  author = {Lahyani, Rahma and Khemakhem, Mahdi and Semet, Frédéric},
+  title = {Rich vehicle routing problems: From a taxonomy to a definition},
+  journal = {European Journal of Operational Research},
+  year = {2015},
+  volume = {241},
+  number = {1},
+  pages = {1--14},
+  doi = {10.1016/j.ejor.2014.07.048},
+  url = {https://doi.org/10.1016/j.ejor.2014.07.048}
+}
+
+% Original 2016 4OR version; do not count the corresponding 2018 version as independent evidence.
+
+@article{cattaruzza2016multipletrips,
+  author = {Cattaruzza, Diego and Absi, Nabil and Feillet, Dominique},
+  title = {Vehicle routing problems with multiple trips},
+  journal = {4OR},
+  volume = {14},
+  number = {3},
+  pages = {223--259},
+  year = {2016},
+  doi = {10.1007/s10288-016-0306-2}
+}
+
+@article{lahyani2015oilmulticompartment,
+  author = {Lahyani, Rahma and Coelho, Leandro C. and Khemakhem, Mahdi and Laporte, Gilbert and Semet, Frédéric},
+  title = {A multi-compartment vehicle routing problem arising in the collection of olive oil in Tunisia},
+  journal = {Omega},
+  year = {2015},
+  volume = {51},
+  pages = {1--10},
+  doi = {10.1016/j.omega.2014.08.007},
+  url = {https://doi.org/10.1016/j.omega.2014.08.007}
+}
+
+@article{TAMBURINI2025104019,
+  author = {Tamburini, Alberto and Lange, Nina and Pisinger, David},
+  title = {A rich model for the tramp ship routing and scheduling problem---Solved through column generation},
+  journal = {Transportation Research Part E: Logistics and Transportation Review},
+  year = {2025},
+  volume = {198},
+  pages = {104019},
+  doi = {10.1016/j.tre.2025.104019},
+  url = {https://doi.org/10.1016/j.tre.2025.104019}
+}
+
+@article{agriengineering1010006,
+  author = {Chokanat, Peerawat and Pitakaso, Rapeepan and Sethanan, Kanchana},
+  title = {Methodology to Solve a Special Case of the Vehicle Routing Problem: A Case Study in the Raw Milk Transportation System},
+  journal = {AgriEngineering},
+  year = {2019},
+  volume = {1},
+  number = {1},
+  pages = {75--93},
+  doi = {10.3390/agriengineering1010006},
+  url = {https://www.mdpi.com/2624-7402/1/1/6}
+}
+
+@article{MIRANDA2018211,
+  author = {Miranda, Pedro L. and Cordeau, Jean-François and Ferreira, Deisemera and Jans, Raf and Morabito, Reinaldo},
+  title = {A decomposition heuristic for a rich production routing problem},
+  journal = {Computers \& Operations Research},
+  year = {2018},
+  volume = {98},
+  pages = {211--230},
+  doi = {10.1016/j.cor.2018.05.004},
+  url = {https://doi.org/10.1016/j.cor.2018.05.004}
+}
+
+@techreport{haase1994setup,
+  author = {Haase, Knut},
+  title = {Capacitated Lot-Sizing with Sequence Dependent Setup Costs},
+  institution = {Universitat Kiel, Institute of Business Administration},
+  type = {Manuskripte aus den Instituten fur Betriebswirtschaftslehre der Universitat Kiel},
+  number = {340},
+  year = {1994},
+  url = {https://www.econstor.eu/bitstream/10419/155415/1/manuskript_340.pdf}
+}
+
+@article{laporte2000heuristics,
+  author = {Laporte, Gilbert and Gendreau, Michel and Potvin, Jean-Yves and Semet, Frédéric},
+  title = {Classical and modern heuristics for the vehicle routing problem},
+  journal = {International Transactions in Operational Research},
+  volume = {7},
+  number = {4-5},
+  pages = {285--300},
+  year = {2000},
+  doi = {10.1111/j.1475-3995.2000.tb00200.x}
+}
+
+% Published two-page thesis summary, not the full thesis.
+
+@article{lahyani2015unified,
+  author = {Lahyani, Rahma},
+  title = {Unified matheuristic for solving rich vehicle routing problems},
+  journal = {4OR},
+  year = {2015},
+  volume = {13},
+  number = {2},
+  pages = {223--224},
+  doi = {10.1007/s10288-014-0278-z},
+  url = {https://doi.org/10.1007/s10288-014-0278-z}
+}
+
+@article{sacramento2020feeder,
+  author = {Sacramento, David and Solnon, Christine and Pisinger, David},
+  title = {Constraint Programming and Local Search Heuristic: a Matheuristic Approach for Routing and Scheduling Feeder Vessels in Multi-terminal Ports},
+  journal = {Operations Research Forum},
+  volume = {1},
+  pages = {32},
+  year = {2020},
+  doi = {10.1007/s43069-020-00036-x},
+  note = {Article 32}
+}
+
+@inproceedings{shaw1998constraint,
+  author = {Shaw, Paul},
+  title = {Using Constraint Programming and Local Search Methods to Solve Vehicle Routing Problems},
+  booktitle = {Principles and Practice of Constraint Programming---CP98},
+  editor = {Maher, Michael and Puget, Jean-François},
+  series = {Lecture Notes in Computer Science},
+  volume = {1520},
+  pages = {417--431},
+  publisher = {Springer},
+  year = {1998},
+  doi = {10.1007/3-540-49481-2_30},
+  url = {https://doi.org/10.1007/3-540-49481-2_30}
+}
+
+% Workshop paper; no unverified DOI or page range is supplied.
+
+@inproceedings{vali2017mtsp,
+  author = {Vali, Masoumeh and Salimifard, Khodakaram},
+  title = {A Constraint Programming Approach for Solving Multiple Traveling Salesman Problem},
+  booktitle = {The Sixteenth International Workshop on Constraint Modelling and Reformulation (ModRef 2017)},
+  year = {2017},
+  url = {https://ozgurakgun.github.io/ModRef2017/}
+}
+
+@inproceedings{vismara2018circuit,
+  author = {Vismara, Philippe and Briot, Nicolas},
+  title = {A Circuit Constraint for Multiple Tours Problems},
+  booktitle = {Principles and Practice of Constraint Programming},
+  series = {Lecture Notes in Computer Science},
+  volume = {11008},
+  pages = {389--402},
+  publisher = {Springer},
+  year = {2018},
+  doi = {10.1007/978-3-319-98334-9_26}
+}
+
+% 3. THEORETICAL BACKGROUND — foundations
+
+% Publication year is 1956, not 1965.
+
+@article{flood1956tsp,
+  author = {Flood, Merrill M.},
+  title = {The Traveling-Salesman Problem},
+  journal = {Operations Research},
+  volume = {4},
+  number = {1},
+  pages = {61--75},
+  year = {1956},
+  doi = {10.1287/opre.4.1.61}
+}
+
+@book{rossi2006handbook,
+  editor = {Rossi, Francesca and van Beek, Peter and Walsh, Toby},
+  title = {Handbook of Constraint Programming},
+  publisher = {Elsevier},
+  year = {2006},
+  series = {Foundations of Artificial Intelligence},
+  volume = {2},
+  isbn = {978-0-444-52726-4},
+  url = {https://cs.uwaterloo.ca/~vanbeek/Publications/cphandbook.html}
+}
+
+@inproceedings{delecluse2022sequence,
+  author = {Delecluse, Augustin and Schaus, Pierre and Van Hentenryck, Pascal},
+  title = {Sequence Variables for Routing Problems},
+  booktitle = {28th International Conference on Principles and Practice of Constraint Programming (CP 2022)},
+  editor = {Solnon, Christine},
+  series = {Leibniz International Proceedings in Informatics (LIPIcs)},
+  volume = {235},
+  pages = {19:1--19:17},
+  publisher = {Schloss Dagstuhl---Leibniz-Zentrum fur Informatik},
+  year = {2022},
+  doi = {10.4230/LIPIcs.CP.2022.19},
+  url = {https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.CP.2022.19}
+}
+
+% Supplied arXiv preprint; distinguish it from the CP 2022 proceedings paper.
+
+@misc{delecluse2025sequence,
+  author = {Delecluse, Augustin and Schaus, Pierre and Van Hentenryck, Pascal},
+  title = {Sequence Variables: A Constraint Programming Computational Domain for Routing and Sequencing},
+  year = {2025},
+  eprint = {2510.09373},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.AI},
+  doi = {10.48550/arXiv.2510.09373},
+  url = {https://arxiv.org/abs/2510.09373}
+}
+
+% 4. METHODOLOGY — implementation and provenance
+
+@misc{mpvrpccProject,
+  title = {MPVRP-CC: Multi-Product Vehicle Routing Problem with Changeover Cost},
+  howpublished = {Project website},
+  url = {https://ifri-ai-classes.github.io/MPVRP-CC/},
+  urldate = {2026-09-26}
+}
+
+% Author/year citation supplied by the thesis author; record the experimental version separately.
+
+@misc{maxicp,
+  title = {maxicp: A Not So Mini Constraint Programming Solver},
+  author = {Schaus, Pierre and Derval, Guillaume and Delecluse, Augustin and Michel, Laurent and Van Hentenryck, Pascal},
+  year = {2026},
+  howpublished = {\url{https://maxicp.org/}},
+  url = {https://maxicp.org/}
+}
+
+@misc{maxicpDocs,
+  title = {MaxiCP: A Not So Mini Constraint Programming Solver---User Guide},
+  howpublished = {Online documentation},
+  url = {https://maxicp.org/},
+  urldate = {2026-09-26},
+  note = {Accessed 26 September 2026}
+}
+
+% User-supplied source URL; contents not verified. Before submission, record the actual upstream commit and verify authorship/license.
+
+@misc{minicpTransitionCost,
+  title = {minicp-sequences: TransitionCost.java},
+  howpublished = {Source code, GitHub repository},
+  url = {https://github.com/augustindelecluse/minicp-sequences/blob/master/src/main/java/minicp/engine/constraints/sequence/TransitionCost.java}
+}
+
+@misc{gurobiDocs,
+  author = {{Gurobi Optimization, LLC}},
+  title = {Gurobi Optimizer Reference Manual},
+  howpublished = {Online documentation},
+  url = {https://docs.gurobi.com/projects/optimizer/en/current/},
+  urldate = {2026-09-26}
+}
+
+% 5. RESULTS AND DISCUSSION — reuse relevant entries above
+
+% 6. CONCLUSION AND FUTURE WORK — reuse relevant entries above
+
+% 7. REFERENCES — writing guidance
+
+@misc{morleyPhrasebank,
+  author = {Morley, John},
+  title = {Academic Phrasebank},
+  howpublished = {The University of Manchester},
+  url = {https://www.phrasebank.manchester.ac.uk/},
+  urldate = {2026-09-26},
+  note = {Accessed 26 September 2026}
+}
+
+@book{knuth1989writing,
+  author = {Knuth, Donald E. and Larrabee, Tracy and Roberts, Paul M.},
+  title = {Mathematical Writing},
+  publisher = {Mathematical Association of America},
+  year = {1989},
+  url = {https://www-cs-faculty.stanford.edu/~knuth/klr.html}
+}
+
+% 8. APPENDICES — reuse implementation and provenance entries above

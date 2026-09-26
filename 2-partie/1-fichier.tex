@@ -1,11 +1,38 @@
-\addcontentsline{toc}{section}{Introduction}
-\section*{Introduction}
+% Provide only the theory needed to understand Chapter~\ref{chap:methodology}.
+% Reuse a small running example where it improves clarity.
 
-\section{-}
-blablabla
+\section{Routing Problems}\label{sec:routing-background}
 
-\section{-}
-blablabla
+\subsection{Traveling Salesman Problem}
+% Define graph, nodes, arcs, tour, and travel cost briefly.
 
-\addcontentsline{toc}{section}{Conclusion}
-\section*{Conclusion}
+\subsection{Vehicle Routing Problem}
+% Explain the transition from one tour to a fleet of capacitated routes.
+
+\subsection{Relevant VRP Variants}
+% Introduce multiple trips, multiple products, rich-routing features, and
+% sequence-dependent costs. State explicitly what ``trip'' means in this work.
+
+\section{Optimization Methods}\label{sec:optimization-background}
+
+\subsection{Mathematical Programming}
+% Introduce variables, objective functions, constraints, and MILP. Distinguish
+% an exact formulation from a solver run that actually proves optimality.
+
+\subsection{Heuristics}
+% Explain construction and improvement heuristics, then best-fit packing,
+% nearest neighbor, and open-path 2-opt as they are used later.
+
+\section{Constraint Programming}\label{sec:cp-background}
+
+\subsection{Basic Concepts}
+% Variables, domains, constraints, propagation, search, and optimization. Add a
+% small domain-reduction example.
+
+\subsection{Routing Models}
+% Briefly introduce successor/circuit and other common representations.
+
+\subsection{Sequence Variables}
+% Explain membership, ordering, possible insertions, and endpoints with one
+% partial insertion-based sequence. Do not confuse this representation with
+% similarly named scheduling constructs.

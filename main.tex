@@ -1,31 +1,36 @@
-%--------------A VOTRE ATTENTION-------------%
-% Les étudiants en master qui disposent de plus de 3 chapitres dans leurs travaux peuvent en complèter
-% Les Membres doivent figurer dans la dernière version finale du mémoire après soutenance pour dépôt de mémoire
+%--------------IMPORTANT NOTICE--------------%
+% Master's students whose work contains more than three chapters may add further chapters.
+% The jury members must appear in the final version submitted after the thesis defence.
 
 \documentclass{ifri}
 \usepackage{titletoc}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{mathtools}
+\addto\captionsenglish{\renewcommand{\bibname}{References}}
 \setlength{\glsdescwidth}{0.65\textwidth}
 % \usepackage{lscape}
 
-\typeMemoire{Diplôme de Licence en Informatique}
-\optionFormation{Sécurité Informatique}
-\etudiant{Prenom \textbf{Nom}}
-\titreDuMemoire{Titre}%Implémention pour une meilleure sécurité dans les réseau LAN sous IPv6 // Proposition: Identification des vulnérabilités dans un reseau LAN IPv6 et mesures pour une meilleure sécurité.
+\typeMemoire{Bachelor's Degree in Computer Science}
+\optionFormation{Artificial Intelligence}
+\etudiant{Todè Rosas Perrier \textbf{BEHOUNDJA}}
+\titreDuMemoire{Solving the Multi-Product Vehicle Routing Problem with Changeover Costs with Constraint Programming and Sequence Variables}
 
 \dateSoutenance{-}
-%\promo{2\up{ème}}
-\anneeScolaire{2024-2025}
+%\promo{2\up{nd}}
+\anneeScolaire{2025-2026}
 
 
-%%maitre de mémoire
-\encadrants{Prenom \textbf{Nom}}
+%% Thesis supervisor
+\encadrants{Dr. (MC) Vinasétan Ratheil \textbf{HOUNDJI}}
 
-%% Membres du Jury
+%% Jury members
 \jurys{%
 \begin{tabular}{llll}
-	Nom et prénoms du président & Grade & Entité & Président \\ 
-	Nom et prénoms de l'examinateur & Grade & Entité & Examinateur \\
-	Nom et prénoms du rapporteur & Grade & Entité & Rapporteur \\
+	Chair's full name & Rank & Institution & Chair \\
+	Examiner's full name & Rank & Institution & Examiner \\
+	Reviewer's full name & Rank & Institution & Reviewer \\
 \end{tabular}	
 }
 
@@ -39,7 +44,7 @@
 
 \color{bookColor}
 
-%importation du glossaire
+% Load glossary entries
 \loadglsentries{glossaire_reduit}
 
 \begin{document}
@@ -49,87 +54,88 @@
 
 \pagecolor{white}
 
-%% page vide
+%% Blank page
 %\thispagestyle{empty}\ \clearpage
 
 
-\selectlanguage{french}
+\selectlanguage{english}
 
-% sommaire
+% Summary table of contents
 \pagenumbering{roman}
 
 \setcounter{tocdepth}{0}
 \startlist{toc}
-\printlist{toc}{}{\chapter*{Sommaire}}
+\printlist{toc}{}{\chapter*{Contents}}
 \setcounter{tocdepth}{5}
 
-%% rdedicaces
+%% Dedication
 \include{0-dedicace}
 \newpage 
 
-%% remerciements
+%% Acknowledgements
 \include{1-remerciements}
 \newpage 
 
-% Résume
+% Abstract
 \include{2-resume}
 \newpage
 
-%liste des figures
+% List of figures
 \listoffigures 
 \newpage
 
-%liste des tableaux
+% List of tables
 \listoftables
 \newpage
 
-%liste des algo
-\selectlanguage{french}
+% List of algorithms
+\selectlanguage{english}
 \listofalgorithmes
 \newpage
 
-% Les sigles et acronymes
+% Acronyms and abbreviations
 \setglossarystyle{altlist}
-\printglossary[title=Liste des acronymes, toctitle=Liste des acronymes, type=\acronymtype]
+\printglossary[title=List of Acronyms, toctitle=List of Acronyms, type=\acronymtype]
 \newpage
 
-% Le glossaire proprement dit
+% Main glossary
 %\setglossarystyle{super}
 %\printglossary[type=main]
 
 
 \pagenumbering{arabic}
 \setcounter{page}{1}
-%%introduction
+%% Introduction
 \include{3-introduction}
 %\lhead[]{} \rhead[]{} \chead[]{}
-\selectlanguage{french}
+\selectlanguage{english}
 \fancyhead[L]{\tiny \leftmark}
 \fancyhead[R]{\scriptsize \rightmark}
 \fancyfoot[C]{\thepage}
 
-\chapter{-}\label{chap:1}
- \input{1-partie/1-fichier}
- 
- \chapter{-}\label{chap:2}
- \input{2-partie/1-fichier}
- 
-\chapter{--}\label{chap:3}
- \input{3-partie/1-fichier}
- 
-% \include{perspectives}
-%%conclusion
-\include{4-conclusion}
+\chapter{Literature Review}\label{chap:literature-review}
+\input{1-partie/1-fichier}
+
+\chapter{Theoretical Background}\label{chap:theoretical-background}
+\input{2-partie/1-fichier}
+
+\chapter{Methodology}\label{chap:methodology}
+\input{3-partie/1-fichier}
+
+\chapter{Results and Discussion}\label{chap:results-discussion}
+\input{4-partie/1-fichier}
+
+\chapter{Conclusion and Future Work}\label{chap:conclusion-future-work}
+\input{4-conclusion}
 % 
 \lhead[]{} \rhead[]{} \chead[]{}
 
-%%biblio
-\addcontentsline{toc}{chapter}{Bibliographie}
+%% Bibliography
 \bibliographystyle{abbrv}
 \bibliography{biblio}
 
-
-%\include{annexe}
+\appendix
+\include{annexe}
 
 \newpage
 \tableofcontents

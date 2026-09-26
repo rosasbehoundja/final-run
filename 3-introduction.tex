@@ -1,2 +1,50 @@
 \introduction
-bla bla bla \gls{acro} puis \Gls{acroglo} et enfin \gls{glossaire}
+
+% Keep this chapter short and accessible. Detailed notation, equations, solver
+% configuration, and sequence-variable domains belong in later chapters.
+
+\section*{Context and Motivation}
+\addcontentsline{toc}{section}{Context and Motivation}
+% Operational setting -> overlooked changeover cost -> reason for the study.
+% Introduce vehicle routing in ordinary language and give one clearly labelled
+% illustrative industrial example. Suggested sources:
+% \cite{toth2014vehicle,wen2010rich,lahyani2015oilmulticompartment,TAMBURINI2025104019}.
+
+\section*{Problem Statement}
+\addcontentsline{toc}{section}{Problem Statement}
+% Explain the joint travel/product-change planning problem, acknowledge related
+% cleaning models, and introduce MPVRP-CC and the hybrid heuristic--CP method.
+
+\begin{quote}
+\textbf{Research question.} To what extent can a hybrid heuristic and
+constraint programming approach solve MPVRP-CC effectively, and how does
+accounting for changeover costs affect route planning and modeled operational
+costs?
+\end{quote}
+
+\section*{Objectives}
+\addcontentsline{toc}{section}{Objectives}
+The overall objective is to develop and assess a hybrid solution approach for
+MPVRP-CC while examining the effect of changeover costs. The specific
+objectives are to:
+\begin{enumerate}
+  \item define MPVRP-CC and formulate a mixed-integer linear programming
+        reference model;
+  \item develop a construction heuristic and a constraint programming model
+        based on sequence variables;
+  \item evaluate the hybrid method against the MILP baseline on synthetic
+        instances; and
+  \item analyze how including changeover costs changes plans and modeled costs.
+\end{enumerate}
+% State the synthetic-data scope and any central restriction.
+
+\section*{Thesis Organization}
+\addcontentsline{toc}{section}{Thesis Organization}
+Chapter~\ref{chap:literature-review} reviews the related routing variants,
+cleaning costs, and solution methods. Chapter~\ref{chap:theoretical-background}
+introduces the routing and optimization concepts used in this work.
+Chapter~\ref{chap:methodology} defines MPVRP-CC, gives the MILP formulation,
+describes the hybrid method, and specifies the experimental protocol.
+Chapter~\ref{chap:results-discussion} presents and discusses the verified
+results. Chapter~\ref{chap:conclusion-future-work} concludes the thesis and
+identifies directions for future work.

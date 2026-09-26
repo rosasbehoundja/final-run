@@ -1,11 +1,58 @@
-\addcontentsline{toc}{section}{Introduction}
-\section*{Introduction}
+% Open with the review scope, actual search dates and terms, inclusion criteria,
+% and reference-tracing method. Do not call the review systematic unless the
+% reported procedure supports that description.
 
-\section{-}
-blablabla
+\section{Relevant Routing Variants}\label{sec:routing-variants}
+% Organize the comparison by operational feature: repeated trips, multiple
+% products, heterogeneous fleets, multiple depots, split deliveries, and rich
+% VRPs. Distinguish supplying depots from home garages.
 
-\section{-}
-blablabla
+\section{Cleaning and Changeover Costs}\label{sec:cleaning-changeover}
+% For each close study: setting -> decisions -> setup trigger -> cost/time
+% treatment -> relevant difference. Preserve distinctions between vehicle
+% cleaning, cargo succession, collection cleaning, and production-line setups.
 
-\addcontentsline{toc}{section}{Conclusion}
-\section*{Conclusion}
+\begin{table}[H]
+  \centering
+  \caption{Comparison of cleaning and changeover mechanisms in related work}
+  \label{tab:cleaning-literature}
+  \begin{tabularx}{\textwidth}{@{}p{0.20\textwidth}XXX@{}}
+    \toprule
+    Study & Operational setting & Changeover mechanism & Relation to MPVRP-CC \\
+    \midrule
+    % Add one verified row per study. Use ``not reported'' for unverified facts.
+    \emph{To be completed} & & & \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Solution Methods}\label{sec:solution-methods}
+
+\subsection{Exact Methods}
+% Compare exact formulations and what their reported runs establish.
+
+\subsection{Heuristics and Hybrid Methods}
+% Explain construction, improvement, decomposition, and hybrid approaches.
+
+\subsection{Constraint Programming for Routing}
+% Compare circuit-based and sequence-based routing representations. Keep
+% interval-based and insertion-based sequence variables distinct.
+
+\section{Research Gap}\label{sec:research-gap}
+% Build the claim from a verified feature matrix. Check whether a general model
+% already contains MPVRP-CC as a special case; a new acronym is not evidence of
+% novelty.
+
+\begin{table}[H]
+  \centering
+  \caption{Feature comparison used to establish the research gap}
+  \label{tab:research-gap}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{@{}lcccccccc@{}}
+    \toprule
+    Study & Routes & Repeated trips & Products & Stock & Split delivery & History dependence & Cost/time & Method \\
+    \midrule
+    \emph{To be completed} & & & & & & & & \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
