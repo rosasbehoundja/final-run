@@ -1,38 +1,114 @@
-\newacronym{vrp}{VRP}{Vehicle Routing Problem}
-\newacronym{mpvrpcc}{MPVRP-CC}{Multi-Product Vehicle Routing Problem with Changeover Costs}
-\newacronym{milp}{MILP}{Mixed-Integer Linear Programming}
+% Acronyms used in the thesis or its introductory context.
+\newacronym{afcfta}{AfCFTA}{African Continental Free Trade Area}
 \newacronym{cp}{CP}{Constraint Programming}
+\newacronym{milp}{MILP}{Mixed-Integer Linear Programming}
+\newacronym{mpvrpcc}{MPVRP-CC}{Multi-Product Vehicle Routing Problem with Changeover Costs}
 \newacronym{tsp}{TSP}{Traveling Salesman Problem}
+\newacronym{uneca}{UNECA}{United Nations Economic Commission for Africa}
+\newacronym{vrp}{VRP}{Vehicle Routing Problem}
 
+% Plain-language reminders. Formal assumptions and notation belong in the
+% Problem definition section; this glossary does not add operational rules.
 \newglossaryentry{changeover-cost}{
   name={changeover cost},
-  description={Cost incurred when a vehicle changes from carrying one product
-  to carrying another product}
+  description={Cost of preparing a vehicle for a load, determined by its
+  previous product state and the product to be loaded. A cost does not by
+  itself represent a duration or prohibit a transition}
 }
-
 \newglossaryentry{delivery-piece}{
   name={delivery piece},
-  description={Portion of a request created when its demand is split}
+  description={Portion of a request's demand created when the demand is split}
 }
-
+\newglossaryentry{depot}{
+  name={depot},
+  description={Physical location where vehicles load products from available stock}
+}
+\newglossaryentry{domain}{
+  name={domain},
+  description={Set of values or configurations currently allowed for a
+  decision variable}
+}
+\newglossaryentry{feasible-solution}{
+  name={feasible solution},
+  description={Assignment of the model's decisions that satisfies all of its
+  constraints}
+}
+\newglossaryentry{fleet}{
+  name={fleet},
+  description={Set of vehicles available for the delivery operations}
+}
+\newglossaryentry{home-garage}{
+  name={home garage},
+  description={Location assigned to a vehicle for its departure and return,
+  as specified by the problem. It need not be a loading depot}
+}
+\newglossaryentry{incumbent}{
+  name={incumbent},
+  description={Best feasible solution found so far during an optimization search}
+}
+\newglossaryentry{instance}{
+  name={instance},
+  description={One complete set of input data defining a particular problem
+  to be solved}
+}
+\newglossaryentry{lower-bound}{
+  name={lower bound},
+  description={Value no greater than the optimal objective value of the
+  minimization problem to which it applies}
+}
 \newglossaryentry{mini-trip}{
   name={mini-trip},
-  description={Unit constructed by the hybrid method, consisting of one loading
-  operation followed by deliveries of the loaded product}
+  description={Unit constructed by the proposed method, comprising a loading
+  operation and an ordered set of deliveries of the loaded product.
+  Assignment and sequencing of these units are handled by CP}
 }
-
+\newglossaryentry{objective-function}{
+  name={objective function},
+  description={Mathematical expression used to evaluate and compare solutions.
+  In this study it combines travel and changeover costs}
+}
+\newglossaryentry{optimal-solution}{
+  name={optimal solution},
+  description={Feasible solution with the best objective value among all
+  feasible solutions of the specified problem}
+}
+\newglossaryentry{propagation}{
+  name={propagation},
+  description={Use of constraints to remove variable values or configurations
+  that cannot be part of a feasible solution}
+}
 \newglossaryentry{request}{
   name={request},
-  description={Station--product pair with positive demand}
+  description={Station--product pair with positive demand. Its demand may be
+  divided into delivery pieces when splitting is permitted}
 }
-
+\newglossaryentry{route}{
+  name={route},
+  description={Ordered plan of movements and operations assigned to a vehicle,
+  potentially including several loading and delivery trips}
+}
 \newglossaryentry{sequence-variable}{
   name={sequence variable},
-  description={Constraint programming variable representing membership and
-  ordering within a sequence}
+  description={CP variable representing which elements belong to a sequence
+  and their order. This work uses an insertion-based representation}
 }
-
+\newglossaryentry{split-delivery}{
+  name={split delivery},
+  description={Fulfilment of one request through more than one delivery,
+  subject to the problem's splitting rules}
+}
+\newglossaryentry{station}{
+  name={station},
+  description={Physical delivery location that may require one or more products}
+}
 \newglossaryentry{supply-node}{
   name={supply node},
-  description={Depot--product pair with available stock}
+  description={Depot--product pair with available stock. It represents a stock
+  source, not a separate physical depot or a single-use visit}
+}
+\newglossaryentry{transition-cost}{
+  name={transition cost},
+  description={Cost assigned to consecutive elements of a sequence. In the
+  proposed model, transitions between mini-trips account for connecting
+  travel and the applicable product changeover}
 }

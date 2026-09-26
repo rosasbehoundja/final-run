@@ -100,6 +100,7 @@
 \setglossarystyle{altlist}
 \printglossary[
   type=\acronymtype,
+  nonumberlist,
   title={Acronyms and abbreviations},
   toctitle={Acronyms and abbreviations}
 ]
@@ -107,10 +108,12 @@
 
 % Main glossary
 \setglossarystyle{super}
-\printglossary[type=main,title={Glossary},toctitle={Glossary}]
+\printglossary[type=main,nonumberlist,title={Glossary},toctitle={Glossary}]
 \clearpage
 
 
+% Expand each acronym on first use in the main text.
+\glsresetall
 \pagenumbering{arabic}
 \setcounter{page}{1}
 %% Introduction

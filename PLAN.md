@@ -28,7 +28,7 @@ Existing routing studies consider cleaning and cargo transitions. Present MPVRP-
 
 CP is an established approach to routing. Motivate it through its suitability for your assignment and sequencing decisions, not a broad claim that few researchers use it. Your method constructs mini-trips and then uses CP to assign and order them. Optimality for the resulting restricted problem does not establish optimality for the original MPVRP-CC.
 
-**Central question:** To what extent can constraint programming with sequence variables provide effective solutions to MPVRP-CC, and how does accounting for changeover costs influence route planning and total modeled operational cost?
+**Central question:** How effectively can CP with sequence variables address MPVRP-CC, and how does considering changeover costs affect the resulting plans?
 
 **Research framing:** The initial aim is to investigate CP and sequence variables for this problem. Present mini-trip construction as a methodological choice developed during the research, explaining its rationale and restrictions in Methodology. It is not an initial research objective. Retain an accurate description of the complete implemented method and its limitations.
 
@@ -36,9 +36,9 @@ Use the same three specific research questions in the introduction and throughou
 
 | Question | Evidence | Location |
 | --- | --- | --- |
-| How can the operational constraints and changeover costs of MPVRP-CC be represented in a solution approach using CP and sequence variables? | Shared definition, MILP, construction, CP, and solution validation | Chapter 4 |
-| How does the proposed approach compare with a MILP baseline in terms of feasible solutions found, solution cost, and computation time? | Valid solutions, objectives, runtime, bounds, and solver statuses | Section 5.1 |
-| How do the resulting vehicle routes, product sequences, and total modeled costs differ when changeover costs are included in planning rather than ignored? | Controlled with/without-changeover comparisons using common cost accounting | Section 5.2 |
+| How can the problem's operational constraints and changeover costs be represented using CP and sequence variables? | Shared definition, MILP, construction, CP, and solution validation | Chapter 4 |
+| How does the proposed approach compare with a MILP baseline in terms of feasible solutions found, total cost, and computation time? | Valid solutions, objectives, runtime, bounds, and solver statuses | Section 5.1 |
+| How do vehicle routes, product sequences, and total modeled costs change when changeover costs are included in planning? | Controlled with/without-changeover comparisons using common cost accounting | Section 5.2 |
 
 ## 1. Introduction
 
@@ -46,11 +46,11 @@ Use the same three specific research questions in the introduction and throughou
 
 ### 1.1 Context and Motivation
 
-**What to say:** Introduce fleet route planning and repeated loading operations. Explain that carrying different products can require cleaning or preparation, and that these activities can make a short-distance plan expensive overall. Give one simple industrial illustration without presenting it as observed company data.
+**What to say:** Begin with transport connecting people, businesses, and markets worldwide, then introduce the African trade context using the World Bank and UNECA sources. Identify UNECA estimates explicitly as projections reported in 2022. Move from this economic context to fleet route planning and repeated loading operations. Explain that carrying different products can require cleaning or preparation, and that these activities can make a short-distance plan expensive overall. Give one simple industrial illustration without presenting it as observed company data.
 
 **How to say it:** Use two or three short paragraphs: operational setting → overlooked cost → reason to study it. Define VRP in ordinary language. Avoid conversational phrasing such as “you guessed it.” Discuss improved working conditions only as motivation unless the study measures working hours or workload.
 
-**Sources:** `toth2014vehicle`, `wen2010rich`, `lahyani2015oilmulticompartment`, `TAMBURINI2025104019`. Select a few citations; do not turn this section into a review.
+**Sources:** `worldbankTransport`, `uneca2022transport`, `toth2014vehicle`, `lahyani2015oilmulticompartment`. Select a few citations; do not turn this section into a review.
 
 ### 1.2 Problem Statement
 
@@ -358,7 +358,7 @@ Important distinctions:
 
 | Section | Primary keys |
 | --- | --- |
-| 1.1–1.2 | `toth2014vehicle`, `wen2010rich`, `lahyani2015oilmulticompartment`, `TAMBURINI2025104019` |
+| 1.1–1.2 | `worldbankTransport`, `uneca2022transport`, `toth2014vehicle`, `wen2010rich`, `lahyani2015oilmulticompartment`, `TAMBURINI2025104019` |
 | 2.1 | `cattaruzza2016multipletrips`, `lahyani2015taxonomy`, `wen2010rich` |
 | 2.2 | `haase1994setup`, `lahyani2015oilmulticompartment`, `TAMBURINI2025104019`, `agriengineering1010006`, `MIRANDA2018211` |
 | 2.3 | `laporte2000heuristics`, `sacramento2020feeder`, `lahyani2015unified`, `shaw1998constraint`, `vali2017mtsp`, `vismara2018circuit`, `delecluse2022sequence`, `delecluse2025sequence` |
