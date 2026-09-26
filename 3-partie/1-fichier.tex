@@ -1,4 +1,4 @@
-\section{Problem Definition}\label{sec:problem-definition}
+\section{Problem definition}\label{sec:problem-definition}
 
 \subsection{Description}
 % Describe stations, loading depots, products, vehicles, home garages, repeated
@@ -44,7 +44,7 @@
   \end{tabularx}
 \end{table}
 
-\subsection{Requests and Supply Nodes}
+\subsection{Requests and supply nodes}
 % Explain that logical nodes retain their physical location and product, that
 % several logical nodes may share a location, and that requests may be split.
 
@@ -58,13 +58,13 @@
         constructed by the hybrid method.
 \end{description}
 
-\subsection{Assumptions and Constraints}
+\subsection{Assumptions and constraints}
 % Separate operating assumptions from enforced feasibility rules. Address:
 % demand satisfaction, stock, capacity, product consistency, loading/delivery,
 % continuity, departure/return, demand splitting, and every other actual rule.
 % Identify any restriction that belongs only to the hybrid method.
 
-\subsection{Objective Function}
+\subsection{Objective function}
 % Define total travel plus changeover cost, including initial product states,
 % same-product transitions, final cleaning, asymmetry, and any loading charge.
 % Explain cost units and give one complete small-route calculation.
@@ -74,27 +74,27 @@
   \label{eq:common-objective}
 \end{equation}
 
-\section{MILP Model}\label{sec:milp-model}
+\section{MILP model}\label{sec:milp-model}
 
-\subsection{Decision Variables}
+\subsection{Decision variables}
 % Define every MILP variable and its domain. Use a table if the list is long.
 
-\subsection{Objective Function}
+\subsection{Objective function}
 % Expand Equation~\eqref{eq:common-objective} using the MILP variables.
 
 \subsection{Constraints}
 % Group equations by operational purpose and explain each family after it.
-\subsubsection{Demand Satisfaction}
-\subsubsection{Stock Availability}
-\subsubsection{Vehicle Capacity and Product Consistency}
-\subsubsection{Loading, Delivery, and Product-State Transitions}
-\subsubsection{Route Continuity, Departure, and Return}
-\subsubsection{Demand Splitting and Visit Limits}
+\subsubsection{Demand satisfaction}
+\subsubsection{Stock availability}
+\subsubsection{Vehicle capacity and product consistency}
+\subsubsection{Loading, delivery, and product-state transitions}
+\subsubsection{Route continuity, departure, and return}
+\subsubsection{Demand splitting and visit limits}
 % Justify finite visit/trip limits and every big-M value. Keep the complete core
 % formulation here; move only lengthy derivations or strengthening details to an
 % appendix.
 
-\section{Proposed Approach}\label{sec:proposed-approach}
+\section{Proposed approach}\label{sec:proposed-approach}
 
 \subsection{Overview}
 % Show: requests/supply nodes -> delivery pieces -> mini-trips -> CP assignment
@@ -118,7 +118,7 @@
   \end{tabularx}
 \end{table}
 
-\subsection{Mini-Trip Construction}
+\subsection{Mini-trip construction}
 % Specify inputs, outputs, ordering, splitting, stock updates, packing, internal
 % routing, tie-breaking, guarantees, and failure behavior.
 \begin{algorithm}[H]
@@ -133,12 +133,12 @@
   \caption{Mini-trip construction scaffold}\label{alg:minitrip-construction}
 \end{algorithm}
 
-\subsection{CP Model}
+\subsection{CP model}
 % Define one sequence per vehicle, exactly-once mini-trip assignment, capacity
 % compatibility, split-request restrictions, and all connector/internal costs.
 % Explain which constraints construction has already enforced.
 
-\subsection{Search Strategy}
+\subsection{Search strategy}
 % Separate feasibility propagation, search ordering, and cost bounding. Describe
 % first-fail selection, minimum-detour placement, insert/forbid branching,
 % incumbents, and stopping conditions as actually implemented.
@@ -148,18 +148,18 @@
 % and commit, retained license/attribution, port changes, and problem-specific
 % transition matrix. Do not present the upstream constraint as a new invention.
 
-\section{Experimental Setup}\label{sec:experimental-setup}
+\section{Experimental setup}\label{sec:experimental-setup}
 
 \subsection{Instances}
 % Document the 100 synthetic instances: configurations, distributions, spatial
 % design, demands, stocks, capacities, product states, changeover matrices,
 % seeds, feasibility checks, and rejection/repair rules.
 
-\subsection{Environment and Validation}
+\subsection{Environment and validation}
 % Hardware, languages, exact solver/code versions and commits, threads, budgets,
 % seeds, and independent checker rules. Include construction in hybrid runtime.
 
-\subsection{Experiments and Metrics}
+\subsection{Experiments and metrics}
 % Predefine the paired method comparison and the controlled with/without-
 % changeover experiment. Define statuses, denominators, percentage signs, and
 % zero handling. A reduced-CP bound is not automatically an original-problem

@@ -225,7 +225,7 @@ frame=leftline
 
 \renewcommand\printglossaries{\chapter*{Glossary}\addcontentsline{toc}{chapter}{Glossary}}
 
-\newcommand\printsigles{\chapter*{Acronyms and Abbreviations}\addcontentsline{toc}{chapter}{Acronyms and Abbreviations}}
+\newcommand\printsigles{\chapter*{Acronyms and abbreviations}\addcontentsline{toc}{chapter}{Acronyms and abbreviations}}
 
 
 \RequirePackage{fancyhdr}
