@@ -13,6 +13,9 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
+% Load French through Babel's locale data. This keeps the bilingual front
+% matter available even on TeX installations that do not ship french.ldf.
+\babelprovide[import]{french}
 \usepackage[usenames,dvipsnames,svgnames,table]{xcolor} % Colors and their available naming schemes
 \usepackage{setspace}
 \usepackage[]{graphicx} % Image insertion
