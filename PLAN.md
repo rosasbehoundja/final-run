@@ -1,7 +1,7 @@
 # MPVRP-CC thesis writing plan
 
-**Revision 3 — 26 September 2026 — aligned with the eight-part structure**  
-**Companion bibliography:** `mpvrp_cc_references_revised_v3.bib`
+**Revision 4 — 26 September 2026 — CP research framing and first prose drafts**
+**Companion bibliography:** `biblio.bib`
 
 **Working title:** Solving the Multi-Product Vehicle Routing Problem with Changeover Costs with Constraint Programming and Sequence Variables
 
@@ -28,15 +28,17 @@ Existing routing studies consider cleaning and cargo transitions. Present MPVRP-
 
 CP is an established approach to routing. Motivate it through its suitability for your assignment and sequencing decisions, not a broad claim that few researchers use it. Your method constructs mini-trips and then uses CP to assign and order them. Optimality for the resulting restricted problem does not establish optimality for the original MPVRP-CC.
 
-**Central question:** To what extent can a hybrid heuristic and CP approach solve MPVRP-CC effectively, and how does accounting for changeover costs affect route planning and modeled operational costs?
+**Central question:** To what extent can constraint programming with sequence variables provide effective solutions to MPVRP-CC, and how does accounting for changeover costs influence route planning and total modeled operational cost?
 
-Use three supporting questions internally to maintain coherence:
+**Research framing:** The initial aim is to investigate CP and sequence variables for this problem. Present mini-trip construction as a methodological choice developed during the research, explaining its rationale and restrictions in Methodology. It is not an initial research objective. Retain an accurate description of the complete implemented method and its limitations.
+
+Use the same three specific research questions in the introduction and throughout the analysis:
 
 | Question | Evidence | Location |
 | --- | --- | --- |
-| How is the problem modeled and addressed? | Shared definition, MILP, construction, CP, and solution validation | Chapter 4 |
-| How does the hybrid method compare with MILP? | Valid solutions, objectives, runtime, bounds, and solver statuses | Section 5.1 |
-| How do changeover costs affect plans? | Controlled with/without-changeover comparisons using common cost accounting | Section 5.2 |
+| How can the operational constraints and changeover costs of MPVRP-CC be represented in a solution approach using CP and sequence variables? | Shared definition, MILP, construction, CP, and solution validation | Chapter 4 |
+| How does the proposed approach compare with a MILP baseline in terms of feasible solutions found, solution cost, and computation time? | Valid solutions, objectives, runtime, bounds, and solver statuses | Section 5.1 |
+| How do the resulting vehicle routes, product sequences, and total modeled costs differ when changeover costs are included in planning rather than ignored? | Controlled with/without-changeover comparisons using common cost accounting | Section 5.2 |
 
 ## 1. Introduction
 
@@ -52,7 +54,7 @@ Use three supporting questions internally to maintain coherence:
 
 ### 1.2 Problem Statement
 
-**What to say:** Explain the difficulty of planning travel and product changes together. Acknowledge that related cleaning models exist. State the specific setting studied, name MPVRP-CC, and briefly introduce the hybrid heuristic–CP approach. End with the central research question.
+**What to say:** Explain the difficulty of planning travel and product changes together. Acknowledge that related cleaning models exist. State the specific setting studied, name MPVRP-CC, and motivate the investigation of CP and sequence variables. Present construction as a later methodological choice, not the starting research aim. End with the central research question.
 
 **How to say it:** Use a compact progression of three paragraphs: what is known and the remaining issue; what this thesis investigates; the research question. State the research gap in concrete terms established by Section 2.4. Avoid an unsupported “no author has clearly defined this problem” claim. Explain CP briefly as a way to express operational rules and search for feasible, low-cost plans. Do not promise global optimality for the complete hybrid approach.
 
@@ -60,11 +62,11 @@ Use three supporting questions internally to maintain coherence:
 
 ### 1.3 Objectives
 
-**What to say:** State one overall objective: develop and assess the hybrid approach while examining the effect of changeover costs. Follow with four specific objectives:
+**What to say:** State one overall objective: develop and assess an approach using CP and sequence variables while examining the effect of changeover costs. Follow with four specific objectives:
 
 1. Define MPVRP-CC and formulate a MILP reference model.
-2. Develop a construction heuristic and a CP model using sequence variables.
-3. Evaluate the hybrid method against the MILP baseline on the synthetic instances.
+2. Design and implement a solution approach using CP and sequence variables.
+3. Evaluate the proposed approach against the MILP baseline on the synthetic instances.
 4. Analyze how including changeover costs changes plans and modeled costs.
 
 **How to say it:** Use action verbs and distinguish completed contributions from intended outcomes. Briefly state the synthetic-data scope and any central restriction. Do not add an open-source-library objective merely because it appeared in the example thesis; include software dissemination only if it is an actual contribution.
@@ -234,7 +236,7 @@ Suggested subsections: **Overview**, **Mini-Trip Construction**, **CP Model**, *
 
 #### Overview
 
-**What to say:** Explain how the method starts from the shared requests and supply nodes, constructs delivery pieces and mini-trips, and then assigns/sequences mini-trips using CP. State which decisions construction fixes.
+**What to say:** Explain why the construction stage was introduced as the approach developed, using the actual reasoning and evidence without inventing earlier failed experiments. Then explain how the method starts from the shared requests and supply nodes, constructs delivery pieces and mini-trips, and then assigns/sequences mini-trips using CP. State which decisions construction fixes.
 
 **How to say it:** Use a short diagram and a decision-allocation table. Explain the reduction in search space and the loss of flexibility together. Do not imply that requests and supply nodes are introduced only for CP.
 

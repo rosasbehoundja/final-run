@@ -1,50 +1,103 @@
 \introduction
 
-% Keep this chapter short and accessible. Detailed notation, equations, solver
-% configuration, and sequence-variable domains belong in later chapters.
-
 \section*{Context and Motivation}
 \addcontentsline{toc}{section}{Context and Motivation}
-% Operational setting -> overlooked changeover cost -> reason for the study.
-% Introduce vehicle routing in ordinary language and give one clearly labelled
-% illustrative industrial example. Suggested sources:
-% \cite{toth2014vehicle,wen2010rich,lahyani2015oilmulticompartment,TAMBURINI2025104019}.
+
+Planning vehicle routes is an important task in logistics. A business must
+decide how to use its fleet to serve customers while respecting operational
+requirements and controlling costs. Vehicle routing problems provide a
+framework for studying these decisions~\cite{toth2014vehicle}. When a vehicle
+can perform several trips, planning also involves deciding how those trips
+should follow one another~\cite{cattaruzza2016multipletrips}.
+
+For vehicles transporting different products, the cost of a plan can depend
+on more than the distance travelled. Changing from one product to another
+may require cleaning or preparation before the next load. For example, in
+an illustrative bulk-delivery operation, a vehicle may need cleaning before
+carrying a product that is incompatible with residues from its previous
+load. The required preparation can depend on both products and on their
+order. A plan with shorter journeys can therefore incur higher overall
+costs if it requires more expensive product changes.
+
+This observation motivates the study of routing decisions together with
+\emph{changeover costs}: the costs associated with preparing a vehicle to
+carry a product after the one previously transported.
 
 \section*{Problem Statement}
 \addcontentsline{toc}{section}{Problem Statement}
-% Explain the joint travel/product-change planning problem, acknowledge related
-% cleaning models, and introduce MPVRP-CC and the hybrid heuristic--CP method.
 
+Cleaning and product-related requirements have already been considered in
+routing research, including the collection of different grades of olive
+oil~\cite{lahyani2015oilmulticompartment}. These studies provide relevant
+precedents. The present work examines a multi-product setting in which
+vehicles perform repeated loading and delivery operations, and the costs of
+successive product changes are included in the planning objective. This
+problem is referred to as the \emph{Multi-Product Vehicle Routing Problem
+with Changeover Costs} (MPVRP-CC). The challenge is to coordinate deliveries
+and product sequences while respecting the operational constraints and
+controlling both travel and changeover costs.
+
+This thesis investigates constraint programming (CP) as an approach to this
+problem. CP allows operational requirements to be expressed as rules that
+solutions must satisfy. In particular, sequence variables provide a way to
+represent and reason about ordered operations in routing
+problems~\cite{delecluse2022sequence}. Their use raises both a modeling
+question and an experimental one: how to represent MPVRP-CC, and how well the
+resulting solution approach performs.
+
+The central research question is:
 \begin{quote}
-\textbf{Research question.} To what extent can a hybrid heuristic and
-constraint programming approach solve MPVRP-CC effectively, and how does
-accounting for changeover costs affect route planning and modeled operational
-costs?
+\emph{To what extent can constraint programming with sequence variables
+provide effective solutions to MPVRP-CC, and how does accounting for
+changeover costs influence route planning and total modeled operational cost?}
 \end{quote}
+Three specific questions guide the study:
+\begin{enumerate}
+  \item How can the operational constraints and changeover costs of MPVRP-CC
+        be represented in a solution approach using CP and sequence variables?
+  \item How does the proposed approach compare with a mixed-integer linear
+        programming (MILP) baseline in terms of feasible solutions found,
+        solution cost, and computation time?
+  \item How do the resulting vehicle routes, product sequences, and total
+        modeled costs differ when changeover costs are included in planning
+        rather than ignored?
+\end{enumerate}
 
 \section*{Objectives}
 \addcontentsline{toc}{section}{Objectives}
-The overall objective is to develop and assess a hybrid solution approach for
-MPVRP-CC while examining the effect of changeover costs. The specific
-objectives are to:
+
+The main objective is to develop and evaluate an approach to MPVRP-CC using
+constraint programming and sequence variables, and to examine the influence
+of changeover costs on planning decisions. The specific objectives are to:
 \begin{enumerate}
-  \item define MPVRP-CC and formulate a mixed-integer linear programming
-        reference model;
-  \item develop a construction heuristic and a constraint programming model
-        based on sequence variables;
-  \item evaluate the hybrid method against the MILP baseline on synthetic
-        instances; and
-  \item analyze how including changeover costs changes plans and modeled costs.
+  \item define MPVRP-CC, its operational constraints, and its cost objective,
+        and formulate a MILP reference model;
+  \item design and implement a solution approach using CP and sequence
+        variables;
+  \item assess the approach against the MILP baseline on synthetic instances;
+        and
+  \item analyze the effect of including changeover costs on the resulting
+        plans and their total modeled costs.
 \end{enumerate}
-% State the synthetic-data scope and any central restriction.
+
+The study uses 100 synthetic instances with varied configurations. Its
+conclusions concern these instances and the operational assumptions of the
+model. The methodological choices developed during the research, including
+the construction of delivery groups before CP assignment and sequencing,
+are explained in the Methodology chapter.
 
 \section*{Thesis Organization}
 \addcontentsline{toc}{section}{Thesis Organization}
-Chapter~\ref{chap:literature-review} reviews the related routing variants,
-cleaning costs, and solution methods. Chapter~\ref{chap:theoretical-background}
-introduces the routing and optimization concepts used in this work.
-Chapter~\ref{chap:methodology} defines MPVRP-CC, gives the MILP formulation,
-describes the hybrid method, and specifies the experimental protocol.
-Chapter~\ref{chap:results-discussion} presents and discusses the verified
-results. Chapter~\ref{chap:conclusion-future-work} concludes the thesis and
-identifies directions for future work.
+
+Chapter~\ref{chap:literature-review} reviews relevant routing variants,
+cleaning and changeover costs, and solution methods, and positions this
+study within the literature. Chapter~\ref{chap:theoretical-background}
+introduces the routing, optimization, and CP concepts needed to understand
+the approach. Chapter~\ref{chap:methodology} defines MPVRP-CC, presents the
+MILP model, describes the proposed approach, and specifies the experimental
+setup. Chapter~\ref{chap:results-discussion} reports the method comparison,
+examines the effect of changeover costs, and discusses the findings and
+limitations. Chapter~\ref{chap:conclusion-future-work} summarizes the
+contributions and outlines future work. The references and appendices
+provide supporting sources, data formats, algorithms, visualizations, and
+supplementary details.
