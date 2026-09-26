@@ -1,0 +1,28 @@
+\begin{tikzpicture}[x=1cm,y=1cm]
+\begin{scope}
+  \node[bgLabel] at (2,3.8) {\textbf{One TSP tour}};
+  \node[bgDepot] (d) at (2,0) {$D$};
+  \node[bgNode] (a) at (0,1) {1};
+  \node[bgNode] (b) at (0.6,2.5) {2};
+  \node[bgNode] (c) at (3.4,2.5) {3};
+  \node[bgNode] (e) at (4,1) {4};
+  \draw[bgArrow] (d)--(a); \draw[bgArrow] (a)--(b);
+  \draw[bgArrow] (b)--(c); \draw[bgArrow] (c)--(e);
+  \draw[bgArrow] (e)--(d);
+  \node[bgNote] at (2,-0.8) {All four locations in one tour;\\capacity is not imposed.};
+\end{scope}
+\begin{scope}[xshift=7cm]
+  \node[bgLabel] at (2,3.8) {\textbf{Two capacitated VRP routes}};
+  \node[bgDepot] (d) at (2,0) {$D$};
+  \node[bgNode,label=left:{$q_1=2$}] (a) at (0,1) {1};
+  \node[bgNode,label=above:{$q_2=3$}] (b) at (0.6,2.5) {2};
+  \node[bgNode,draw=routeOrange,fill=routeOrange!9,label=above:{$q_3=2$}] (c) at (3.4,2.5) {3};
+  \node[bgNode,draw=routeOrange,fill=routeOrange!9,label=right:{$q_4=2$}] (e) at (4,1) {4};
+  \draw[bgArrow] (d)--(a); \draw[bgArrow] (a)--(b);
+  \draw[bgArrow] (b)--(d);
+  \draw[bgArrow,draw=routeOrange,dashed] (d)--(c);
+  \draw[bgArrow,draw=routeOrange,dashed] (c)--(e);
+  \draw[bgArrow,draw=routeOrange,dashed] (e)--(d);
+  \node[bgNote] at (2,-0.8) {$Q=5$ per vehicle\\Blue load: 5; orange load: 4.};
+\end{scope}
+\end{tikzpicture}

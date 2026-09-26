@@ -1,0 +1,15 @@
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[bgLabel,anchor=west] at (-1,1) {\textbf{The same three loads, in two orders}};
+  \node[bgBox] (a1) at (0,0) {Load 1\\Product A};
+  \node[bgBox,draw=routeOrange,fill=routeOrange!9] (b1) at (3.5,0) {Load 3\\Product B};
+  \node[bgBox] (a2) at (7,0) {Load 2\\Product A};
+  \draw[bgArrow] (a1)--node[above,font=\small] {$h_{AB}=12$}(b1);
+  \draw[bgArrow] (b1)--node[above,font=\small] {$h_{BA}=8$}(a2);
+  \node[bgNote,anchor=west] at (9,0) {Travel: 40\\Changeovers: 20\\\textbf{Total: 60}};
+  \node[bgBox] (c1) at (0,-2) {Load 1\\Product A};
+  \node[bgBox] (c2) at (3.5,-2) {Load 2\\Product A};
+  \node[bgBox,draw=routeOrange,fill=routeOrange!9] (c3) at (7,-2) {Load 3\\Product B};
+  \draw[bgArrow,draw=routeGreen] (c1)--node[above,font=\small] {$h_{AA}=0$}(c2);
+  \draw[bgArrow] (c2)--node[above,font=\small] {$h_{AB}=12$}(c3);
+  \node[bgNote,anchor=west] at (9,-2) {Travel: 44\\Changeovers: 12\\\textbf{Total: 56}};
+\end{tikzpicture}

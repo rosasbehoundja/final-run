@@ -1,0 +1,10 @@
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[bgBox,text width=3.2cm] (before) at (0,0)
+    {\textbf{Before propagation}\\[4pt]$D(y_A)=\{1,2\}$\\$D(y_B)=\{1,2\}$};
+  \node[bgBox,draw=routeOrange,fill=routeOrange!8,text width=3.2cm] (rule) at (5,0)
+    {\textbf{Capacity check}\\[4pt]$q_A=6>Q_1=5$\\$q_B=4\leq Q_1,Q_2$};
+  \node[bgBox,draw=routeGreen,fill=routeGreen!8,text width=3.2cm] (after) at (10,0)
+    {\textbf{After propagation}\\[4pt]$D(y_A)=\{2\}$\\$D(y_B)=\{1,2\}$};
+  \draw[bgArrow] (before)--(rule); \draw[bgArrow] (rule)--(after);
+  \node[bgNote] at (5,-1.5) {Two indivisible loads: $q_A=6$, $q_B=4$. Two vehicle capacities: $Q_1=5$, $Q_2=10$.};
+\end{tikzpicture}

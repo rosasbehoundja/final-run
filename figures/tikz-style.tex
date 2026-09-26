@@ -1,0 +1,18 @@
+% Shared styles for original thesis diagrams; labels also distinguish colours.
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric}
+\definecolor{routeBlue}{HTML}{0072B2}
+\definecolor{routeOrange}{HTML}{D55E00}
+\definecolor{routeGreen}{HTML}{007A58}
+\definecolor{routePurple}{HTML}{8C4A8A}
+\tikzset{
+  bgNode/.style={circle,draw=routeBlue,fill=routeBlue!9,thick,
+    minimum size=7mm,inner sep=1pt,font=\small},
+  bgDepot/.style={rectangle,rounded corners=1pt,draw=black!70,
+    fill=black!8,thick,minimum size=8mm,font=\small},
+  bgBox/.style={rectangle,rounded corners=3pt,draw=routeBlue,
+    fill=routeBlue!7,thick,align=center,inner sep=6pt,font=\small},
+  bgArrow/.style={-{Stealth[length=2mm]},thick,draw=routeBlue},
+  bgLabel/.style={font=\small,align=center},
+  bgNote/.style={font=\footnotesize,align=center}
+}

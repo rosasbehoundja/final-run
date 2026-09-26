@@ -1,38 +1,324 @@
-% Provide only the theory needed to understand Chapter~\ref{chap:methodology}.
-% Reuse a small running example where it improves clarity.
+This chapter introduces the concepts needed to understand the formulation
+and solution approach. It moves from routing problems to optimization
+methods and then to constraint programming. The examples and figures are
+illustrative constructions, not experimental instances or results. Their
+purpose is to explain the decisions and reasoning used later; the complete
+MPVRP-CC specification is given in Section~\ref{sec:problem-definition}.
 
 \section{Routing problems}\label{sec:routing-background}
 
 \subsection{Traveling salesman problem}
-% Define graph, nodes, arcs, tour, and travel cost briefly.
+
+A routing problem can be represented by a graph $G=(V,A)$, where $V$ is a set
+of locations and $A$ is a set of permitted directed connections, called arcs.
+An arc $(i,j)$ has a cost $c_{ij}$, which may represent distance, travel time,
+or a monetary expense. These quantities must be distinguished even when
+one is used as a proxy for another. A path is an ordered sequence of
+connected locations; a tour returns to its starting location.
+
+The \gls{tsp} asks for a minimum-cost tour visiting every required location
+once before returning to the starting point. Flood~\cite{flood1956tsp}
+provides a classical study of this problem. For a tour
+$\pi=(v_0,v_1,\ldots,v_n,v_0)$, its cost is
+\begin{equation}
+ C(\pi)=\sum_{i=0}^{n-1}c_{v_i v_{i+1}}+c_{v_n v_0}.
+ \label{eq:background-tour-cost}
+\end{equation}
+The return connection is included once. For an open path, that final
+connection would be omitted. In a symmetric instance, $c_{ij}=c_{ji}$;
+in an asymmetric instance, the two directions may have different costs.
+Geometric proximity alone therefore need not determine the cheapest tour.
 
 \subsection{Vehicle routing problem}
-% Explain the transition from one tour to a fleet of capacitated routes.
+
+The \gls{vrp} extends routing decisions to a fleet. Besides choosing an
+order of visits, the planner must decide which vehicle serves each customer.
+In the capacitated version, customer $i$ has demand $q_i$ and vehicle $k$
+has capacity $Q_k$. A route carrying all its deliveries from the depot must
+satisfy
+\begin{equation}
+ \sum_{i\in V_k}q_i\leq Q_k,
+ \label{eq:background-capacity}
+\end{equation}
+where $V_k$ is its set of customers. This simple expression assumes a
+single loading operation, deliveries only, and no replenishment during the
+route. More general load evolution requires additional constraints.
+Toth and Vigo~\cite{toth2014vehicle} provide a broad treatment of routing
+models and methods.
+
+Figure~\ref{fig:background-routes} contrasts a single tour with a feasible
+capacitated plan on the same customer set. The demands total nine units, so
+one vehicle of capacity five cannot deliver everything in one load. Two
+routes can carry five and four units, respectively. The drawing illustrates
+feasibility; it does not claim either depicted plan is optimal.
+
+\begin{figure}[htbp]
+ \centering
+ \input{figures/background/routes}
+ \caption{A single tour and a capacitated two-route plan on the same locations.
+ Original illustrative example; arrows show the visit order.}
+ \label{fig:background-routes}
+\end{figure}
 
 \subsection{Relevant VRP variants}
-% Introduce multiple trips, multiple products, rich-routing features, and
-% sequence-dependent costs. State explicitly what ``trip'' means in this work.
+
+In a multi-trip setting, one vehicle can be used for several trips during
+the planning horizon~\cite{cattaruzza2016multipletrips}. This separates the
+number of vehicles from the number of trips. Figure~\ref{fig:multiple-trips}
+shows a conventional example with a return to the depot for replenishment.
+Throughout this chapter, a \emph{route} denotes a vehicle's complete ordered
+plan, while a \emph{trip} denotes one loading-and-delivery cycle. The example
+uses a single depot; it does not impose this depot-return convention on the
+problem-specific mini-trips introduced in Methodology.
+
+\begin{figure}[htbp]
+ \centering
+ \input{figures/background/multiple-trips}
+ \caption{Two successive trips performed by one vehicle. The repeated depot
+ symbols represent different visits to one location, not three depots.}
+ \label{fig:multiple-trips}
+\end{figure}
+
+Several other features can be combined: a heterogeneous fleet has vehicles
+with differing characteristics; multiple depots create loading-location
+choices; multiple products distinguish types of demand; and split deliveries
+allow demand to be served in more than one delivery. Rich VRP models combine
+operational requirements that interact~\cite{lahyani2015taxonomy}. The precise
+combination matters more than the label alone.
+
+A sequence-dependent changeover adds a cost associated with consecutive
+product states. Let $h_{pq}$ denote the cost of changing from product $p$
+to product $q$. It need not be symmetric. A loading charge that depends only
+on $q$ differs from a changeover charge that depends on both $p$ and $q$.
+This order dependence is analogous to the setup-cost principle studied in
+scheduling and lot-sizing~\cite{haase1994setup}.
+
+For an illustration, take $h_{AA}=h_{BB}=0$, $h_{AB}=12$, and $h_{BA}=8$.
+Consider three fixed loads, two of product A and one of product B. Suppose
+the travel costs of two feasible orders are 40 and 44 monetary units, as
+shown in Figure~\ref{fig:changeover-example}. The first order costs
+$40+12+8=60$; the second costs $44+0+12=56$. The more expensive travel plan
+has the lower combined cost. Initial preparation and final cleaning are
+set to zero in this example, and all values use the same monetary unit.
+Actual initial states and terminal charges must be specified separately.
+
+\begin{figure}[htbp]
+ \centering
+ \input{figures/background/changeovers}
+ \caption{An illustrative travel--changeover trade-off. Both plans serve the
+ same loads; all costs are invented monetary values. No optimality claim is made.}
+ \label{fig:changeover-example}
+\end{figure}
 
 \section{Optimization methods}\label{sec:optimization-background}
 
 \subsection{Mathematical programming}
-% Introduce variables, objective functions, constraints, and MILP. Distinguish
-% an exact formulation from a solver run that actually proves optimality.
+
+An optimization model specifies decision variables, a feasible set, and an
+objective. A solution is feasible when all constraints hold. An optimal
+solution has the best objective value among the feasible solutions of the
+specified model. A \gls{milp} uses a linear objective and linear constraints,
+with some variables restricted to integer values; binary variables take
+values in $\{0,1\}$.
+
+Consider a small assignment model. Let $I$ be a set of indivisible loads,
+$K$ a set of vehicles, $q_i$ the size of load $i$, $Q_k$ vehicle capacity,
+and $a_{ik}$ the assignment cost. Define $x_{ik}=1$ if load $i$ is assigned
+to vehicle $k$, and zero otherwise. One possible model is
+\begin{align}
+ \min\quad &\sum_{i\in I}\sum_{k\in K}a_{ik}x_{ik},
+       \label{eq:assignment-objective}\\
+ \text{subject to}\quad &\sum_{k\in K}x_{ik}=1 &&\forall i\in I,
+       \label{eq:assignment-once}\\
+ &\sum_{i\in I}q_i x_{ik}\leq Q_k &&\forall k\in K,
+       \label{eq:assignment-capacity}\\
+ &x_{ik}\in\{0,1\} &&\forall i\in I,\ k\in K.
+\end{align}
+Equation~\eqref{eq:assignment-once} assigns every load exactly once, and
+Equation~\eqref{eq:assignment-capacity} limits the combined assigned load.
+This is a single-loading allocation example: it contains no travel,
+sequencing, or replenishment decisions. In particular, a multi-trip model
+must not constrain all quantities delivered during the day by one vehicle
+to fit within a single vehicle load.
+
+An exact formulation and a completed proof of optimality are different
+things. For a minimization problem, the cost of any feasible solution gives
+an upper bound $UB$ on the optimum $z^*$, while a valid lower bound $LB$
+satisfies
+\begin{equation}
+ LB\leq z^*\leq UB.
+\end{equation}
+Equality certifies optimality, subject to the solver's numerical tolerances.
+If a run ends earlier, its incumbent may still be useful without being
+proven optimal. For positive $UB$, one possible reporting convention is
+$100(UB-LB)/UB$; the denominator and treatment of zero must always be stated.
+Solver-reported conventions should be checked in the relevant
+documentation~\cite{gurobiDocs}.
 
 \subsection{Heuristics}
-% Explain construction and improvement heuristics, then best-fit packing,
-% nearest neighbor, and open-path 2-opt as they are used later.
+
+A construction heuristic builds a solution through selected decisions;
+an improvement heuristic modifies an existing solution. These ideas are
+common in routing~\cite{laporte2000heuristics}. Their attraction is practical
+search effort, but a locally attractive choice need not be globally best.
+A hybrid approach combines such choices with another optimization method;
+the exact division of decisions determines what remains open to search.
+
+Three elementary operations help explain the later methodology. A
+\emph{best-fit} packing rule places an item in the admissible group with the
+least remaining capacity after insertion. With capacity six and item sizes
+four, three, and two processed in that order, it creates groups $(4,2)$ and
+$(3)$. Additional compatibility conditions can exclude a group even when it
+has enough space. The rule is a packing choice, not a proof of an optimal
+routing plan.
+
+A \emph{nearest-neighbour} rule selects the nearest admissible unvisited
+location from the current endpoint. This does not explicitly anticipate the
+remaining visits or the final connection. An insertion rule instead places
+a visit between two existing visits. If the current connection is $(i,j)$,
+inserting $u$ changes an additive transition cost by
+\begin{equation}
+ \Delta(i,u,j)=c_{iu}+c_{uj}-c_{ij}.
+ \label{eq:insertion-delta}
+\end{equation}
+Choosing the smallest feasible $\Delta$ is a search preference; it does not
+guarantee the cheapest completed route.
+
+A \emph{2-opt} move removes two connections and reconnects the path by
+reversing the intervening segment. Figure~\ref{fig:two-opt} gives an open-path
+example with fixed endpoints. With Euclidean, hence symmetric, travel costs,
+reversing the middle segment reduces the length from approximately 10.21 to
+7. For asymmetric costs, the costs of reversed internal arcs must also be
+recomputed. When products are involved, transition charges and feasibility
+must be checked as well; a geometrically shorter path need not have a lower
+total operational cost.
+
+\begin{figure}[htbp]
+ \centering
+ \input{figures/background/two-opt}
+ \caption{A 2-opt improvement of an open path with fixed endpoints $A$ and $D$.
+ Distances are Euclidean in arbitrary length units; no changeover costs apply.}
+ \label{fig:two-opt}
+\end{figure}
 
 \section{Constraint programming}\label{sec:cp-background}
 
 \subsection{Basic concepts}
-% Variables, domains, constraints, propagation, search, and optimization. Add a
-% small domain-reduction example.
+
+A CP model consists of variables, their domains, and constraints relating
+them. A domain records the values or configurations still allowed for a
+variable. Propagation removes possibilities that cannot satisfy the
+constraints, while search explores alternatives that propagation has not
+resolved. An objective allows feasible solutions to be compared. These
+foundations are presented in the handbook edited by Rossi, van Beek, and
+Walsh~\cite{rossi2006handbook}.
+
+For an original example, let $y_A$ and $y_B$ identify the vehicles assigned
+to two indivisible loads of sizes six and four. The vehicle capacities are
+five and ten. Initially both assignment domains are $\{1,2\}$. Since the
+first vehicle cannot carry load A, propagation removes 1 from $D(y_A)$.
+Both choices remain possible for B: it can occupy vehicle 1 alone, or share
+vehicle 2 with A, giving a combined load of ten. The capacity rule has reduced
+the decision space without deciding everything.
+
+\begin{figure}[htbp]
+ \centering
+ \input{figures/background/propagation}
+ \caption{Capacity-based domain reduction in a toy single-load assignment
+ problem. Vehicle 1 is removed from A's domain; B retains two possibilities.}
+ \label{fig:propagation}
+\end{figure}
+
+A search decision can now choose $y_B=1$, with an alternative branch
+$y_B=2$. Propagation follows each decision. A branch is abandoned if a
+constraint becomes impossible; search can then backtrack. The
+\emph{first-fail} principle prioritizes a decision with few remaining
+possibilities. In optimization, a valid bound can also rule out a branch
+that cannot improve the incumbent. The strength of these deductions depends
+on the model and propagators; expressing a constraint does not imply that
+all infeasible combinations are detected before search.
 
 \subsection{Routing models}
-% Briefly introduce successor/circuit and other common representations.
+
+A successor representation associates a visit with the next visit in its
+route. Constraints must ensure the required visits are connected correctly:
+local successor choices alone can create disconnected cycles. Circuit
+constraints capture some of this structure, and richer variants can handle
+multiple circuits and cost bounds~\cite{vismara2018circuit}. An alternative
+uses interval variables to describe activities and their temporal relations,
+as in the multiple-salesman model of Vali and
+Salimifard~\cite{vali2017mtsp}.
+
+The choice of representation influences both modeling and search. Insertion
+search is particularly natural when an incomplete route is maintained as an
+ordered sequence. This motivates the sequence-variable representation used
+in this work~\cite{delecluse2022sequence}. The word ``sequence'' alone does
+not identify an implementation: scheduling sequences over intervals and
+insertion-based routing sequences have different interfaces and domain
+representations.
 
 \subsection{Sequence variables}
-% Explain membership, ordering, possible insertions, and endpoints with one
-% partial insertion-based sequence. Do not confuse this representation with
-% similarly named scheduling constructs.
+
+An insertion-based sequence variable represents a set of possible ordered
+sequences of distinct elements. Its state describes a partial order already
+established, membership requirements, and insertion restrictions. An element
+may already be placed, be required but not yet placed, remain optional, or be
+excluded. In particular, requiring an element does not necessarily fix its
+position. The domain and its update operations are formalized by Delecluse
+et al.~\cite{delecluse2025sequence}.
+
+Figure~\ref{fig:sequence-insertion} illustrates a partial sequence
+$\langle s,a,b,t\rangle$, with fixed start and end markers $s$ and $t$.
+Element $r$ must occur but has not been placed; $o$ is optional and $x$ is
+excluded. Suppose no other restrictions prevent insertion of $r$ into any
+of the three shown gaps. Selecting the middle gap gives
+$\langle s,a,r,b,t\rangle$. Existing elements preserve their relative order,
+but new elements can be inserted between them. The picture shows a choice
+in a domain, not an assertion that every such insertion is feasible under
+all constraints of an application.
+
+\begin{figure}[htbp]
+ \centering
+ \input{figures/background/sequence-insertion}
+ \caption{A required element inserted into a partial sequence. Orange dashed
+ arrows mark alternative gaps, not three simultaneous visits. Optional element
+ $o$ remains undecided, so the resulting sequence is not yet fixed.}
+ \label{fig:sequence-insertion}
+\end{figure}
+
+This distinction between a partial sequence and a fixed sequence is important.
+In the example, the domain still admits a completion without $o$ and
+completions that insert $o$ at admissible positions. Excluded $x$ cannot occur.
+For a fleet, an operation may initially be a candidate in several vehicle
+sequences; an assignment constraint must ensure that a required operation
+belongs to exactly one final sequence.
+
+Once a sequence is fixed as
+$\sigma=\langle s,u_1,\ldots,u_m,t\rangle$, an additive transition-cost
+expression is
+\begin{equation}
+ C(\sigma)=\tau_{s u_1}
+           +\sum_{i=1}^{m-1}\tau_{u_i u_{i+1}}
+           +\tau_{u_m t},\qquad m\geq1,
+ \label{eq:sequence-cost}
+\end{equation}
+where $\tau_{ij}$ is the cost of following element $i$ by element $j$.
+An empty sequence has the explicitly defined cost $\tau_{st}$. Any internal
+cost attached to an element must be counted separately or included exactly
+once by a consistent convention. Methodology specifies how travel and
+product changeovers enter these costs.
+
+A cost expression on a completed sequence does not by itself define a
+strong lower bound on a partial sequence. For example, if
+$\tau_{ab}=20$, $\tau_{ar}=3$, and $\tau_{rb}=4$, inserting $r$ replaces a
+cost of 20 by 7. Thus, the current partial-sequence cost need not be a lower
+bound when the transition matrix lacks the triangle inequality. This
+example also shows why the insertion increment in
+Equation~\eqref{eq:insertion-delta} can be negative. A propagator's bounds
+must be justified for the cost assumptions actually used.
+
+These concepts provide the foundation for the next chapter. They do not
+prescribe every operational rule of MPVRP-CC. The problem definition, the
+construction choices, the CP constraints, and the implemented search are
+presented separately so that theoretical properties and properties of the
+actual solution method remain distinguishable.

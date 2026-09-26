@@ -1,15 +1,18 @@
-This chapter reviews the research most relevant to MPVRP-CC. It brings
-together two lines of work: routing models that account for repeated trips,
-multiple products, and preparation activities; and solution methods that
-combine routing decisions with constraint programming. The purpose is to
-identify the foundations of this study and explain how its questions relate
-to existing contributions.
+This chapter examines how existing research informs the modeling and
+solution of MPVRP-CC. It addresses two questions: how do routing studies
+represent activities such as cleaning and preparation, and what solution
+methods are available for problems that combine routing and sequencing?
+The review connects these questions to the delivery setting studied here.
 
-The review is thematic rather than exhaustive. It draws on selected routing
-surveys, application studies, and papers on CP representations. The comparison
-focuses on the decisions being optimized, the operational meaning of cleaning
-or setup, and the role of the solution method. These distinctions matter
-because similar terms can describe different mathematical problems.
+The chapter first considers repeated trips, multiple products, and other
+features of rich vehicle routing. It then compares cleaning and changeover
+mechanisms, distinguishing vehicle preparation from services performed at
+customer locations and setups on production equipment. The third section
+reviews exact, heuristic, and CP-based methods, with particular attention to
+sequence variables. The final section identifies the specific questions
+that this thesis investigates. The review is thematic: it compares selected
+surveys and application studies rather than claiming exhaustive coverage
+of every routing variant.
 
 \section{Relevant routing variants}\label{sec:routing-variants}
 
@@ -115,6 +118,21 @@ not establish that the charge depends on an ordered pair of different
 products. It is therefore treated here as a cleaning-cost precedent, rather
 than as evidence of an identical changeover mechanism.
 
+\subsection{Bin washing in waste collection}
+
+Masmoudi et al.~\cite{masmoudi2024multi} study multi-compartment waste
+collection with vehicles that compact waste and wash bins. Their model
+includes separation sites and water-refilling stations, with washing required
+at a subset of collection points. They present a MILP formulation and a
+hybrid variable neighbourhood search algorithm.
+
+This study extends the comparison to cleaning performed as a service during
+a route. Washing uses a resource carried by the vehicle and can influence
+its visits to replenishment stations. The mechanism differs from preparing
+a vehicle for a change of transported product: its relevance to MPVRP-CC is
+the integration of auxiliary operations with routing, rather than an
+identical product-transition cost.
+
 \subsection{Cleaning in maritime routing}
 
 Tamburini, Lange, and Pisinger~\cite{TAMBURINI2025104019} study tramp ship
@@ -170,6 +188,9 @@ its demand, loading, or scheduling structure.
     Chokanat et al.~\cite{agriengineering1010006}
       & Truck and tank cleaning charges
       & Pairwise product dependence not established in this comparison \\[0.5em]
+    Masmoudi et al.~\cite{masmoudi2024multi}
+      & Bin washing with water replenishment
+      & Service at collection points, rather than product changeover \\[0.5em]
     Tamburini et al.~\cite{TAMBURINI2025104019}
       & Cleaning integrated with ship routing and scheduling
       & Maritime operating structure; model equivalence not asserted \\[0.5em]
@@ -279,57 +300,62 @@ investigation, not evidence of their performance on MPVRP-CC.
 
 \section{Research gap}\label{sec:research-gap}
 
-The reviewed literature establishes three foundations for this thesis.
-First, repeated trips and multiple products are established routing
-features. Second, cleaning and sequence-dependent preparation already occur
-in transport and integrated production-routing studies. Third, CP has been
-used both directly and within hybrid methods, with several representations
-available for routing and sequencing.
+The literature shows that routing decisions can be coupled with preparation
+and cleaning. The closest vehicle-related precedent is the olive-oil
+collection model, where product history determines compartment cleaning.
+The other studies broaden the perspective: milk transport includes cleaning
+charges, bin washing adds a service and water-replenishment decisions,
+maritime routing integrates cleaning with ship operations, and
+production-routing links distribution with manufacturing setups. These
+connections establish a basis for studying operational costs beyond travel.
 
-Accordingly, the contribution sought here is not the introduction of
-cleaning into routing in general, nor the first use of CP for routing. The
-study focuses on a specified delivery problem in which product transitions
-between successive loads contribute to the objective, together with travel
-costs. It examines a solution approach based on CP and sequence variables
-and evaluates the consequences of including those transition costs in
-planning.
+The issue pursued in this thesis is more specific. MPVRP-CC concerns
+multi-product deliveries in which the cost of preparing a vehicle for its
+next load depends on the product carried previously. The routes and product
+sequences must be chosen while meeting demand and respecting stock and
+capacity constraints. This setting raises a joint modeling question and an
+operational question: how to represent these decisions together, and how
+much the resulting plans change when product-transition costs are included.
 
-The selected papers provide relevant components and precedents, but the
-comparisons above do not establish that their models and experiments answer
-this precise combination of questions. This is a bounded research position:
-it does not claim that no existing general formulation could express the
-problem as a special case. The definition in
-Section~\ref{sec:problem-definition} is therefore essential to understanding
-what is being studied and to making subsequent comparisons meaningful.
+The reviewed studies address related mechanisms, but they do not directly
+provide an evaluation of CP with insertion-based sequence variables for the
+MPVRP-CC specification adopted here. That is the methodological focus of this
+work. CP and sequence variables are established tools; the contribution is
+their application and assessment for this specified problem, supported by a
+MILP reference model and controlled experiments on synthetic instances.
 
-Table~\ref{tab:research-gap} connects the literature to the questions pursued
-in this thesis. Rather than interpreting unverified features as absent, it
-states what the reviewed work contributes and what will be assessed here.
+This positioning does not require claiming that cleaning in routing is new.
+Nor does the use of a new problem name prove that no previous general model
+could represent the same setting. The relationship to earlier formulations
+depends on their detailed assumptions. Accordingly, the contribution is
+framed around an explicit problem definition, a documented solution
+approach, and evidence about its performance and the effect of changeover
+costs.
 
 \begin{table}[htbp]
   \centering
   \small
-  \caption{Relationship between the reviewed literature and this study}
+  \caption{Research questions arising from the literature}
   \label{tab:research-gap}
   \begin{tabularx}{\textwidth}{@{}XX@{}}
     \toprule
-    Foundation in the literature & Question pursued in this thesis \\
+    Foundation in earlier work & Focus of this thesis \\
     \midrule
-    Multi-trip and rich routing models
-      & How should the delivery, loading, and product-transition decisions
-        be represented together? \\[0.5em]
-    Cleaning charges and sequence-dependent preparation
-      & How do routes, product sequences, and total costs change when
-        changeovers enter the planning objective? \\[0.5em]
-    CP routing representations and hybrid methods
-      & How effectively does the proposed sequence-variable approach solve
-        the specified problem compared with a MILP baseline? \\
+    Multi-trip routing and product-related preparation
+      & Represent delivery, loading, and product-transition decisions within
+        a common problem definition \\[0.5em]
+    CP representations for routing and sequencing
+      & Develop and assess a sequence-variable approach against a MILP
+        baseline \\[0.5em]
+    Integration of operational activities with travel decisions
+      & Compare plans made with and without changeover costs using the same
+        full cost measure \\
     \bottomrule
   \end{tabularx}
 \end{table}
 
-The next chapter introduces the concepts needed to understand the models.
-The Methodology chapter then defines MPVRP-CC and explains the approach
-actually developed. In particular, any choices fixed before CP search must
-be identified so that experimental conclusions refer to the decision space
-that was explored.
+The next chapter introduces the concepts used to address these questions.
+The Methodology chapter then explains the decisions made during the
+development of the approach, including the construction stage and the
+choices it fixes before CP search. These restrictions delimit the conclusions
+that can be drawn from the computational results.

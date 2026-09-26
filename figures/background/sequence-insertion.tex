@@ -1,0 +1,21 @@
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[bgLabel,anchor=west] at (-0.7,2.1) {\textbf{Partial sequence: $\langle s,a,b,t\rangle$}};
+  \node[bgDepot] (s) at (0,0) {$s$}; \node[bgNode] (a) at (3,0) {$a$};
+  \node[bgNode] (b) at (6,0) {$b$}; \node[bgDepot] (t) at (9,0) {$t$};
+  \draw[bgArrow] (s)--(a); \draw[bgArrow] (a)--(b); \draw[bgArrow] (b)--(t);
+  \node[bgNode,draw=routeOrange,fill=routeOrange!9] (r) at (4.5,1.25) {$r$};
+  \draw[bgArrow,draw=routeOrange,dashed] (r) to[bend right=12] (1.5,0.1);
+  \draw[bgArrow,draw=routeOrange,dashed] (r)--(4.5,0.1);
+  \draw[bgArrow,draw=routeOrange,dashed] (r) to[bend left=12] (7.5,0.1);
+  \node[bgNote] at (1.5,-0.55) {Gap 1}; \node[bgNote] at (4.5,-0.55) {Gap 2};
+  \node[bgNote] at (7.5,-0.55) {Gap 3};
+  \node[bgNote,anchor=west,text width=3cm] at (10,0.4)
+    {$r$: required, unplaced\\$o$: optional\\$x$: excluded};
+  \node[bgLabel,anchor=west] at (-0.7,-1.45) {\textbf{Choose gap 2: $\langle s,a,r,b,t\rangle$}};
+  \node[bgDepot] (s2) at (0,-2.3) {$s$}; \node[bgNode] (a2) at (2.25,-2.3) {$a$};
+  \node[bgNode,draw=routeOrange,fill=routeOrange!9] (r2) at (4.5,-2.3) {$r$};
+  \node[bgNode] (b2) at (6.75,-2.3) {$b$}; \node[bgDepot] (t2) at (9,-2.3) {$t$};
+  \draw[bgArrow] (s2)--(a2); \draw[bgArrow,draw=routeOrange] (a2)--(r2);
+  \draw[bgArrow,draw=routeOrange] (r2)--(b2); \draw[bgArrow] (b2)--(t2);
+  \node[bgNote] at (4.5,-3.2) {The existing order $a\prec b$ is preserved. Optional $o$ is still undecided.};
+\end{tikzpicture}

@@ -1,0 +1,19 @@
+\begin{tikzpicture}[x=1cm,y=1cm]
+\begin{scope}
+  \node[bgLabel] at (1.5,3) {\textbf{Before: $A,B,C,D$}};
+  \node[bgNode] (a) at (0,0) {$A$}; \node[bgNode] (b) at (3,2) {$B$};
+  \node[bgNode] (c) at (0,2) {$C$}; \node[bgNode] (d) at (3,0) {$D$};
+  \draw[bgArrow,draw=routeOrange] (a)--(b); \draw[bgArrow] (b)--(c);
+  \draw[bgArrow,draw=routeOrange] (c)--(d);
+  \node[bgNote] at (1.5,-0.75) {$2\sqrt{13}+3\simeq10.21$};
+\end{scope}
+\begin{scope}[xshift=7cm]
+  \node[bgLabel] at (1.5,3) {\textbf{After: $A,C,B,D$}};
+  \node[bgNode] (a) at (0,0) {$A$}; \node[bgNode] (b) at (3,2) {$B$};
+  \node[bgNode] (c) at (0,2) {$C$}; \node[bgNode] (d) at (3,0) {$D$};
+  \draw[bgArrow,draw=routeGreen] (a)--(c); \draw[bgArrow] (c)--(b);
+  \draw[bgArrow,draw=routeGreen] (b)--(d);
+  \node[bgNote] at (1.5,-0.75) {$2+3+2=7$};
+\end{scope}
+\node[bgNote] at (5,-1.6) {Coordinates: $A=(0,0)$, $B=(3,2)$, $C=(0,2)$, $D=(3,0)$.};
+\end{tikzpicture}

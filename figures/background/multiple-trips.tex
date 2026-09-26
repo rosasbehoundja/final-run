@@ -1,0 +1,17 @@
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \node[bgLabel,anchor=west] at (-0.4,1.15) {\textbf{One vehicle, two successive trips}};
+  \foreach \n/\x in {d0/0,d1/6,d2/12}{\node[bgDepot] (\n) at (\x,0) {$D$};}
+  \node[bgNode] (a) at (2,0) {$A$}; \node[bgNode] (b) at (4,0) {$B$};
+  \node[bgNode,draw=routeOrange,fill=routeOrange!9] (c) at (8,0) {$C$};
+  \node[bgNode,draw=routeOrange,fill=routeOrange!9] (e) at (10,0) {$E$};
+  \draw[bgArrow] (d0)--(a); \draw[bgArrow] (a)--(b); \draw[bgArrow] (b)--(d1);
+  \draw[bgArrow,draw=routeOrange,dashed] (d1)--(c);
+  \draw[bgArrow,draw=routeOrange,dashed] (c)--(e);
+  \draw[bgArrow,draw=routeOrange,dashed] (e)--(d2);
+  \draw[routeBlue,thick] (0,-0.65)--(6,-0.65);
+  \draw[routeOrange,thick,dashed] (6,-0.85)--(12,-0.85);
+  \node[bgNote,text=routeBlue] at (2.7,-1.1) {Trip 1};
+  \node[bgNote,text=routeOrange] at (9,-1.25) {Trip 2};
+  \node[bgNote] at (6,0.85) {Return and reload};
+  \node[bgNote] at (6,-1.95) {Repeated symbols $D$ denote the same physical depot.};
+\end{tikzpicture}
