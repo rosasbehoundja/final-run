@@ -1,166 +1,600 @@
+This chapter presents the methodological framework of the study. It first
+defines MPVRP-CC, then develops a mixed-integer linear formulation and an
+approach based on constraint programming and sequence variables. The final
+section presents the experimental protocol for comparing the approaches and
+assessing the effect of changeover costs.
+
 \section{Problem definition}\label{sec:problem-definition}
-
 \subsection{Description}
-% Describe stations, loading depots, products, vehicles, home garages, repeated
-% loading/delivery operations, inputs, decisions, and planning horizon in plain
-% language. State whether a load contains one product and is fully unloaded.
+The Multi-Product Vehicle Routing Problem with Changeover Costs can be defined
+as the problem of organizing deliveries of several products from a set of
+depots to a set of stations using a fleet of capacitated vehicles. Each station
+requires specified quantities of one or more products, while depots hold
+limited stocks. A vehicle may perform several trips during the planning period.
 
-\subsection{Notation}
-% Define common sets and parameters before model-specific variables. Keep units
-% visible and use the same notation in the MILP and hybrid approach.
+Each trip begins with the loading of one product at a depot. The vehicle then
+visits stations requiring that product and delivers its entire load before
+loading again. The following trip may begin at a different depot. Each used
+vehicle departs from its home garage and returns there after its final delivery.
 
-\begin{table}[H]
-  \centering
-  \caption{Common sets and indices}
-  \label{tab:common-sets}
-  \begin{tabularx}{\textwidth}{@{}lX@{}}
-    \toprule
-    Symbol & Definition \\
-    \midrule
-    $S$ & Set of physical delivery stations, indexed by $s$ \\
-    $D$ & Set of physical loading depots, indexed by $d$ \\
-    $P$ & Set of products, indexed by $p$ \\
-    $K$ & Set of vehicles, indexed by $k$ \\
-    $R$ & Request set, $R=\{(s,p)\in S\times P:q_{sp}>0\}$ \\
-    $U$ & Supply-node set, $U=\{(d,p)\in D\times P:S_{dp}>0\}$ \\
-    \bottomrule
-  \end{tabularx}
+Successive loads may require preparation. The associated changeover cost
+depends on both the previous product and the next product. The initial product
+state of a vehicle determines the preparation required before its first load.
+
+The planning decisions concern delivery quantities, loading sources, vehicle
+assignments, and the order of operations. The aim is to satisfy all demands
+while minimizing travel and changeover costs. A shorter route is therefore
+not necessarily the least expensive plan.
+
+\subsection{Requests, supply nodes, and notation}
+A \textbf{request} is a station--product pair with positive demand. A
+\textbf{supply node} is a depot--product pair with positive available stock.
+Several requests may share one station, and several supply nodes may share
+one depot. These logical nodes retain their physical locations. A supply node
+may support several loading operations, provided its stock is sufficient.
+
+\begin{table}[htbp]
+\centering
+\caption{Sets and parameters defining MPVRP-CC}\label{tab:common-sets}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule Symbol & Definition \\ \midrule
+$S,D,P,K$ & Sets of stations, depots, products, and vehicles \\
+$R,U$ & Sets of requests and supply nodes, indexed by $r$ and $u$ \\
+$N=R\cup U$ & Logical routing nodes, with distinct request and supply identifiers \\
+$p_i$ & Product associated with node $i\in N$ \\
+$d_r$ & Positive integer demand of request $r$ \\
+$B_u$ & Available integer stock at supply node $u$ \\
+$Q_k$ & Positive integer capacity of vehicle $k$ \\
+$g_k,b_k$ & Home garage and initial product state of vehicle $k$ \\
+$c_{ij}$ & Nonnegative travel cost between the physical locations of $i$ and $j$ \\
+$h_{pp'}$ & Nonnegative changeover cost from product $p$ to product $p'$ \\
+\bottomrule
+\end{tabularx}
 \end{table}
 
-\begin{table}[H]
-  \centering
-  \caption{Common parameters}
-  \label{tab:common-parameters}
-  \begin{tabularx}{\textwidth}{@{}lXl@{}}
-    \toprule
-    Symbol & Definition & Unit \\
-    \midrule
-    $q_{sp}$ & Demand for product $p$ at station $s$ & \emph{Specify} \\
-    $S_{dp}$ & Available stock of product $p$ at depot $d$ & \emph{Specify} \\
-    $Q_k$ & Capacity of vehicle $k$ & \emph{Specify} \\
-    $c_{ij}$ & Travel cost between physical locations $i$ and $j$ & cost unit \\
-    $\gamma_{pp'}$ & Cost of changing from product $p$ to product $p'$ & cost unit \\
-    \bottomrule
-  \end{tabularx}
-\end{table}
+Quantities use a common load unit. Travel and changeover costs use a common
+cost scale so that they can be added. The changeover matrix may be asymmetric:
+preparing a vehicle for $p'$ after $p$ need not cost the same as the reverse
+transition. Same-product transitions retain the specified value $h_{pp}$.
 
-\subsection{Requests and supply nodes}
-% Explain that logical nodes retain their physical location and product, that
-% several logical nodes may share a location, and that requests may be split.
+\subsection{Problem constraints}
+The problem is subject to the following constraints.
+\begin{enumerate}
+\renewcommand{\labelenumi}{\alph{enumi}.}
+\item \textbf{Demand satisfaction.} Each request receives exactly $d_r$ units.
+\item \textbf{Stock availability.} Total withdrawals from supply node $u$ do
+not exceed $B_u$.
+\item \textbf{Vehicle capacity.} The quantity carried during a trip does not
+exceed the capacity of the vehicle performing it.
+\item \textbf{Product consistency.} A trip carries one product and serves
+only requests for that product.
+\item \textbf{Load balance.} The entire load is delivered during the trip;
+no remaining quantity is transferred to the next load.
+\item \textbf{Route continuity.} Loading and delivery operations form a
+connected route, without disconnected customer cycles.
+\item \textbf{Departure and return.} Each used vehicle starts and ends at its
+own garage. Vehicles may remain unused.
+\item \textbf{Split deliveries and visit limits.} Several vehicles may share
+a request's demand, but each vehicle visits that request at most once. This
+limit concerns a station--product pair, not all products required at a station.
+\end{enumerate}
 
-\begin{description}
-  \item[Station] A physical delivery location.
-  \item[Depot] A physical loading location.
-  \item[Request] A station--product pair with positive demand.
-  \item[Supply node] A depot--product pair with available stock.
-  \item[Delivery piece] A portion of a request created by demand splitting.
-  \item[Mini-trip] One loading operation followed by deliveries of that product,
-        constructed by the hybrid method.
-\end{description}
-
-\subsection{Assumptions and constraints}
-% Separate operating assumptions from enforced feasibility rules. Address:
-% demand satisfaction, stock, capacity, product consistency, loading/delivery,
-% continuity, departure/return, demand splitting, and every other actual rule.
-% Identify any restriction that belongs only to the hybrid method.
+Vehicles may perform several trips. Time windows, service durations, and
+working-time limits are outside the present setting. Preparation is represented
+by a cost rather than by a duration or a forbidden product transition.
 
 \subsection{Objective function}
-% Define total travel plus changeover cost, including initial product states,
-% same-product transitions, final cleaning, asymmetry, and any loading charge.
-% Explain cost units and give one complete small-route calculation.
+Suppose vehicle $k$ performs $m_k>0$ trips with products
+$(p_{k1},\ldots,p_{km_k})$. Its changeover cost is
+\[
+C_k^{\mathrm{change}}=h_{b_kp_{k1}}+
+\sum_{t=1}^{m_k-1}h_{p_{kt}p_{k,t+1}}.
+\]
+The first term accounts for the initial product state. An unused vehicle
+incurs zero cost. No final cleaning charge is added after the last trip.
+
+The objective is
 \begin{equation}
-  \min C_{\mathrm{total}}
-  = C_{\mathrm{travel}} + C_{\mathrm{changeover}}.
-  \label{eq:common-objective}
+\min C_{\mathrm{total}}=C_{\mathrm{travel}}+
+\sum_{k\in K}C_k^{\mathrm{change}}.
+\label{eq:common-objective}
 \end{equation}
+Travel includes departure from the garage, delivery paths, connections between
+trips, and garage return. For example, travel costing 28 units and changeovers
+costing 6 and 8 units give a total of $28+6+8=42$ units.
 
 \section{MILP model}\label{sec:milp-model}
+\subsection{Trip positions and routing graph}
+The formulation represents each vehicle's plan through ordered trip positions
+$T=\{1,\ldots,H\}$. The parameter $H$ is the maximum number of trips available
+to each vehicle. It may be chosen explicitly; otherwise, a default value is
+\begin{equation}
+H=\max\left\{
+\left\lceil\frac{\sum_{r\in R}d_r}{\sum_{k\in K}Q_k}\right\rceil+1,
+|P|\right\}.
+\label{eq:trip-horizon}
+\end{equation}
+
+The demand-to-capacity ratio estimates the number of loading rounds needed
+if the entire fleet were used at full capacity. Rounding up and adding one
+provides an extra round. The second term leaves at least as many positions
+as there are products, allowing room for product-separated trips.
+
+This is a practical default, not a sufficient bound proved to preserve an
+unrestricted optimum. Any chosen value must satisfy the necessary condition
+$H\sum_kQ_k\geq\sum_rd_r$. Product demands, stock distribution, and visit
+limits may still require a larger value. Optimality conclusions therefore
+apply to the selected limit $H$.
+
+The routing graph contains three arc sets:
+\begin{align}
+A_{UR}&=\{(u,r)\in U\times R:p_u=p_r\},\label{eq:arcs-ur}\\
+A_{RR}&=\{(r,r')\in R\times R:r\neq r',\ p_r=p_{r'}\},\label{eq:arcs-rr}\\
+A_{RU}&=R\times U.\label{eq:arcs-ru}
+\end{align}
+\begin{description}
+\item[$A_{UR}$.] Arcs from a loading source to the first request of a trip.
+Both nodes concern the same product.
+\item[$A_{RR}$.] Arcs joining distinct requests during a trip. Both requests
+concern the product being transported.
+\item[$A_{RU}$.] Arcs from the last request of a trip to the loading source
+of the next trip, which may concern another product.
+\end{description}
+
+Let $A=A_{UR}\cup A_{RR}\cup A_{RU}$ and $n=|R|$. Define
+$A^+(i)=\{j:(i,j)\in A\}$ and $A^-(i)=\{j:(j,i)\in A\}$.
+Garage departure and return are represented separately.
 
 \subsection{Decision variables}
-% Define every MILP variable and its domain. Use a table if the list is long.
-
-\subsection{Objective function}
-% Expand Equation~\eqref{eq:common-objective} using the MILP variables.
-
-\subsection{Constraints}
-% Group equations by operational purpose and explain each family after it.
-\subsubsection{Demand satisfaction}
-\subsubsection{Stock availability}
-\subsubsection{Vehicle capacity and product consistency}
-\subsubsection{Loading, delivery, and product-state transitions}
-\subsubsection{Route continuity, departure, and return}
-\subsubsection{Demand splitting and visit limits}
-% Justify finite visit/trip limits and every big-M value. Keep the complete core
-% formulation here; move only lengthy derivations or strengthening details to an
-% appendix.
-
-\section{Proposed approach}\label{sec:proposed-approach}
-
-\subsection{Overview}
-% Show: requests/supply nodes -> delivery pieces -> mini-trips -> CP assignment
-% and sequencing. State exactly which decisions construction fixes and the
-% resulting loss of flexibility.
-
-\begin{table}[H]
-  \centering
-  \caption{Allocation of decisions between construction and constraint programming}
-  \label{tab:decision-allocation}
-  \begin{tabularx}{\textwidth}{@{}lXX@{}}
-    \toprule
-    Decision & Construction heuristic & CP model \\
-    \midrule
-    Request splitting & \emph{Specify} & \emph{Specify} \\
-    Supply-node selection & \emph{Specify} & \emph{Specify} \\
-    Deliveries within a mini-trip & \emph{Specify} & \emph{Specify} \\
-    Vehicle assignment & \emph{Specify} & \emph{Specify} \\
-    Mini-trip order & \emph{Specify} & \emph{Specify} \\
-    \bottomrule
-  \end{tabularx}
+\begin{table}[htbp]
+\centering\small
+\caption{MILP decision variables}\label{tab:milp-variables}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule Variable & Domain & Definition \\ \midrule
+$a_{kt}$ & $\{0,1\}$ & Trip position $t$ is active for vehicle $k$ \\
+$z_{ktp}$ & $\{0,1\}$ & Trip $(k,t)$ carries product $p$ \\
+$s_{ktu}$ & $\{0,1\}$ & Trip $(k,t)$ loads at supply node $u$ \\
+$v_{ktr}$ & $\{0,1\}$ & Request $r$ is visited during trip $(k,t)$ \\
+$y_{ktr}$ & $\mathbb{Z}_{\geq0}$ & Quantity delivered to request $r$ \\
+$l_{ktu}$ & $\mathbb{Z}_{\geq0}$ & Quantity loaded at supply node $u$ \\
+$x_{ktij}$ & $\{0,1\}$ & Arc $(i,j)\in A$ is traversed during trip $(k,t)$ \\
+$o_{ktr}$ & $[0,n]$ & Auxiliary position of request $r$ within the trip \\
+$f_{kt}$ & $\{0,1\}$ & Trip $(k,t)$ is the last active trip \\
+$e_{ktr}$ & $\{0,1\}$ & Return home occurs from request $r$ after trip $t$ \\
+$w_{ktpp'}$ & $\{0,1\}$ & Products $p,p'$ occur at trips $t,t+1$ \\
+\bottomrule
+\end{tabularx}
 \end{table}
 
-\subsection{Mini-trip construction}
-% Specify inputs, outputs, ordering, splitting, stock updates, packing, internal
-% routing, tie-breaking, guarantees, and failure behavior.
-\begin{algorithm}[H]
-  \KwData{Requests $R$, supply nodes $U$, fleet capacities, travel costs}
-  \KwResult{A set of mini-trips, or a reported construction failure}
-  \tcp{Replace this scaffold with verified construction pseudocode.}
-  order requests according to the implemented rule\;
-  split and pack requests while updating available stock\;
-  select a supply node for each mini-trip\;
-  order the deliveries within each mini-trip\;
-  \Return{constructed mini-trips}\;
-  \caption{Mini-trip construction scaffold}\label{alg:minitrip-construction}
+The variable $w$ is defined only for $t<H$. Set $a_{k,H+1}=0$ and
+$s_{k,H+1,u}=0$ as boundary constants. Write $L_{kt}=\sum_ry_{ktr}$ for the
+total delivery quantity of a trip; it is shorthand, not an additional variable.
+
+\subsection{Constraints}
+\subsubsection{Trip activation and loading source}
+For $k\in K$, $t\in T$, and $p\in P$,
+\begin{align}
+\sum_{u\in U}s_{ktu}&=a_{kt},\label{eq:milp-start}\\
+z_{ktp}&=\sum_{u\in U:p_u=p}s_{ktu},\label{eq:milp-product}\\
+a_{k,t+1}&\leq a_{kt} &&(t<H),\label{eq:milp-prefix}\\
+f_{kt}&=a_{kt}-a_{k,t+1}.\label{eq:milp-last}
+\end{align}
+Equation~\eqref{eq:milp-start} selects one loading source for each active trip
+and none for an inactive position. Equation~\eqref{eq:milp-product} fixes the
+product through that source. Constraint~\eqref{eq:milp-prefix} places active
+trips consecutively from the first position. Equation~\eqref{eq:milp-last}
+identifies the final trip, after which the vehicle returns home.
+
+\subsubsection{Route continuity}
+For each vehicle $k$ and trip $t$,
+\begin{align}
+\sum_{j\in A^+(u)}x_{ktuj}&=s_{ktu} &&(u\in U),\label{eq:milp-leave}\\
+\sum_{i\in A^-(u)}x_{ktiu}&=s_{k,t+1,u} &&(u\in U),\label{eq:milp-next}\\
+\sum_{r\in R}e_{ktr}&=f_{kt},\label{eq:milp-home}\\
+\sum_{i\in A^-(r)}x_{ktir}&=v_{ktr} &&(r\in R),\label{eq:milp-in}\\
+\sum_{j\in A^+(r)}x_{ktrj}+e_{ktr}&=v_{ktr} &&(r\in R),\label{eq:milp-out}\\
+v_{ktr}&\leq z_{kt,p_r} &&(r\in R).\label{eq:milp-compatible}
+\end{align}
+Equation~\eqref{eq:milp-leave} starts a trip at its selected source.
+Equation~\eqref{eq:milp-next} connects its final request to the source of the
+following trip. Equation~\eqref{eq:milp-home} instead selects one garage return
+when the trip is the last one.
+
+Equations~\eqref{eq:milp-in}--\eqref{eq:milp-out} give each visited request
+one incoming and one outgoing connection, including garage return as an
+alternative. Constraint~\eqref{eq:milp-compatible} permits service only when
+the trip carries the requested product.
+
+\subsubsection{Demand and visit limits}
+\begin{align}
+\sum_{k\in K}\sum_{t\in T}y_{ktr}&=d_r &&(r\in R),\label{eq:milp-demand}\\
+\sum_{t\in T}v_{ktr}&\leq1 &&(k\in K,r\in R),\label{eq:milp-visit-limit}\\
+0\leq y_{ktr}&\leq d_rv_{ktr} &&(k\in K,t\in T,r\in R).
+\label{eq:quantity-visit}
+\end{align}
+Equation~\eqref{eq:milp-demand} satisfies demand exactly.
+Constraint~\eqref{eq:milp-visit-limit} permits splitting across vehicles but
+forbids repeated visits by one vehicle to the same request.
+Constraint~\eqref{eq:quantity-visit} permits deliveries only at selected visits.
+It allows $y_{ktr}=0$ when $v_{ktr}=1$: a selected visit need not carry a
+positive quantity in this formulation. Requiring at least one unit at every
+visit would additionally require $y_{ktr}\geq v_{ktr}$.
+
+\subsubsection{Capacity and stock}
+For $k\in K$, $t\in T$, and $u\in U$,
+\begin{align}
+L_{kt}&\leq Q_ka_{kt},\label{eq:milp-capacity}\\
+l_{ktu}&\leq Q_ks_{ktu},\label{eq:milp-load-source}\\
+l_{ktu}&\leq L_{kt},\label{eq:milp-load-upper}\\
+l_{ktu}&\geq L_{kt}-Q_k(1-s_{ktu}),\label{eq:milp-load-lower}\\
+\sum_{k\in K}\sum_{t\in T}l_{ktu}&\leq B_u &&(u\in U).\label{eq:milp-stock}
+\end{align}
+Constraint~\eqref{eq:milp-capacity} limits the trip quantity to vehicle
+capacity. Constraints~\eqref{eq:milp-load-source}--\eqref{eq:milp-load-lower}
+set the load to $L_{kt}$ at the chosen source and zero elsewhere. The coefficient
+$Q_k$ is sufficient because it already bounds the trip quantity.
+Constraint~\eqref{eq:milp-stock} limits total withdrawals across all trips.
+
+\subsubsection{Subtour elimination}
+For $k\in K$ and $t\in T$,
+\begin{align}
+v_{ktr}\leq o_{ktr}&\leq nv_{ktr} &&(r\in R),\label{eq:milp-order}\\
+o_{ktr}-o_{ktr'}+nx_{ktrr'}&\leq n-1
+&&((r,r')\in A_{RR}).\label{eq:milp-mtz}
+\end{align}
+Constraint~\eqref{eq:milp-order} assigns positive positions only to visited
+requests. Constraint~\eqref{eq:milp-mtz} increases the position along each
+selected request-to-request arc. A disconnected cycle would require positions
+to increase back to their starting value, which is impossible. These constraints
+follow the Miller--Tucker--Zemlin ordering principle~\cite{miller1960integer}.
+
+\subsubsection{Product transitions}
+For $k\in K$, $t<H$, and $p,p'\in P$,
+\begin{align}
+w_{ktpp'}&\leq z_{ktp},\label{eq:milp-change-first}\\
+w_{ktpp'}&\leq z_{k,t+1,p'},\label{eq:milp-change-second}\\
+w_{ktpp'}&\geq z_{ktp}+z_{k,t+1,p'}-1.\label{eq:milp-change-both}
+\end{align}
+Constraints~\eqref{eq:milp-change-first}--\eqref{eq:milp-change-both} set
+$w_{ktpp'}$ to one exactly when the current trip carries $p$ and the following
+trip carries $p'$. This makes the corresponding changeover charge linear.
+
+\subsection{Objective function}
+\begin{align}
+\min\quad
+&\sum_{k\in K}\sum_{t\in T}\sum_{(i,j)\in A}c_{ij}x_{ktij}
++\sum_{k\in K}\sum_{u\in U}c_{g_ku}s_{k1u}\nonumber\\
+&+\sum_{k\in K}\sum_{t\in T}\sum_{r\in R}c_{rg_k}e_{ktr}
++\sum_{k\in K}\sum_{p\in P}h_{b_kp}z_{k1p}\nonumber\\
+&+\sum_{k\in K}\sum_{t=1}^{H-1}\sum_{p\in P}\sum_{p'\in P}
+ h_{pp'}w_{ktpp'}.
+\label{eq:milp-objective}
+\end{align}
+The five terms represent travel within and between trips, garage departure,
+garage return, preparation before the first load, and changeovers between
+successive loads. Every movement and transition is counted once.
+
+\section{Proposed approach}\label{sec:proposed-approach}
+\subsection{Overview}
+The proposed approach separates the preparation of delivery trips from their
+assignment and sequencing. Requests are divided into delivery pieces, associated
+with sources, and grouped into mini-trips. Each mini-trip receives an internal
+visit order. CP then chooses its vehicle and position in that vehicle's route.
+
+A \textbf{delivery piece} is a positive portion of a request's demand supplied
+by one source. A \textbf{mini-trip} consists of a loading operation followed
+by an ordered list of compatible pieces. Its path ends at its final delivery;
+the connection to the next operation is determined during sequencing.
+
+\begin{table}[htbp]
+\centering
+\caption{Allocation of planning decisions}\label{tab:decision-allocation}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule Decision & Preliminary construction & CP optimization \\ \midrule
+Quantities & Selects delivery pieces & Keeps quantities fixed \\
+Supply nodes & Selects loading sources & Keeps sources fixed \\
+Mini-trip composition & Groups compatible pieces & Keeps groups fixed \\
+Internal order & Orders deliveries & Keeps internal paths fixed \\
+Vehicle assignment & Leaves it open & Selects eligible vehicles \\
+Mini-trip succession & Leaves it open & Orders trips on each vehicle \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The separation reduces the decisions explored together, but restricts the
+solution space. CP does not reconsider the preliminary quantities, sources,
+groupings, or paths. Its optimality conclusions concern the resulting mini-trips.
+
+\subsection{Construction of delivery pieces}
+Let $B_u^{\mathrm{rem}}$ be remaining stock and $d^{\mathrm{rem}}$ the remaining
+demand of the current request. Algorithm~\ref{alg:pieces} handles large demands
+first and favors the source supplying the largest possible piece. Distance
+breaks quantity ties. Capacities guide splitting without assigning pieces to
+particular vehicles.
+
+\begin{algorithm}[htbp]
+\SetAlgoLined
+\KwData{Requests $R$, sources $U$, demands $d_r$, stocks $B_u$, capacities $Q_k$, costs $c$}
+\KwResult{Delivery pieces $E$, or construction failure}
+$E\gets\varnothing$; $B_u^{\mathrm{rem}}\gets B_u$ for all $u\in U$\;
+Order requests by nonincreasing demand\;
+Form list $L$ of vehicle capacities in nonincreasing order\;
+\ForEach{request $r$ in this order}{
+ $d^{\mathrm{rem}}\gets d_r$\;
+ \ForEach{capacity $Q$ in $L$, while $d^{\mathrm{rem}}>0$}{
+  $U_r\gets\{u\in U:p_u=p_r,\ B_u^{\mathrm{rem}}>0\}$\;
+  \If{$U_r=\varnothing$}{\Return{construction failure}\;}
+  $v_u\gets\min\{d^{\mathrm{rem}},Q,B_u^{\mathrm{rem}}\}$ for $u\in U_r$\;
+  Select $u^*$ maximizing $v_u$, then minimizing $c_{ur}$\;
+  Add $(r,u^*,v_{u^*})$ to $E$\;
+  $d^{\mathrm{rem}}\gets d^{\mathrm{rem}}-v_{u^*}$\;
+  $B_{u^*}^{\mathrm{rem}}\gets B_{u^*}^{\mathrm{rem}}-v_{u^*}$\;
+ }
+ \If{$d^{\mathrm{rem}}>0$}{\Return{construction failure}\;}
+}
+\Return{$E$}\;
+\caption{Demand splitting and supply-node selection}\label{alg:pieces}
 \end{algorithm}
 
-\subsection{CP model}
-% Define one sequence per vehicle, exactly-once mini-trip assignment, capacity
-% compatibility, split-request restrictions, and all connector/internal costs.
-% Explain which constraints construction has already enforced.
+At most $|K|$ pieces are created for one request. Failure means that this
+construction did not find a suitable split, not that the original problem is
+infeasible. Earlier allocations are not reconsidered.
+
+\subsection{Grouping and ordering deliveries}
+Write $r_e,u_e,v_e$ for the request, source, and quantity of piece $e$.
+For group $j$, let $u_j,q_j,R_j$ denote its source, accumulated quantity, and
+represented requests. Set $Q_{\min}=\min_kQ_k$.
+
+\begin{algorithm}[htbp]
+\SetAlgoLined
+\KwData{Pieces $E$ and threshold $Q_{\min}$}
+\KwResult{Groups $J$ of compatible delivery pieces}
+$J\gets\varnothing$\;
+Order pieces by nonincreasing quantity\;
+\ForEach{piece $e$ in this order}{
+ $F\gets\{j\in J:u_j=u_e,\ r_e\notin R_j,\ q_j+v_e\leq Q_{\min}\}$\;
+ \eIf{$F\neq\varnothing$}{
+  Select $j\in F$ minimizing $Q_{\min}-q_j-v_e$\;
+ }{
+  Create group $j$ with source $u_e$, quantity 0 and no requests\;
+  Add $j$ to $J$\;
+ }
+ Add $e$ to $j$; update $q_j$ and $R_j$\;
+}
+\Return{$J$}\;
+\caption{Best-fit grouping of delivery pieces}\label{alg:grouping}
+\end{algorithm}
+
+Algorithm~\ref{alg:grouping} favors the eligible group with least residual
+space. A piece exceeding $Q_{\min}$ forms a singleton group, which requires
+a sufficiently large vehicle. A group cannot contain two pieces of one request.
+
+For requests $(r_1,\ldots,r_m)$ ordered after source $u$, define
+\[
+I(u;r_1,\ldots,r_m)=c_{ur_1}+\sum_{i=1}^{m-1}c_{r_ir_{i+1}}.
+\]
+This open-path cost contains no return leg. Algorithm~\ref{alg:internal-routing}
+uses nearest neighbor followed by best-improvement subsequence reversals.
+Each candidate is evaluated through its full path cost, so symmetry is not
+required.
+
+\begin{algorithm}[htbp]
+\SetAlgoLined
+\KwData{Group $j$ with source $u_j$ and pieces $E_j$}
+\KwResult{An ordered mini-trip}
+$W\gets E_j$; $O\gets\langle\ \rangle$; $i\gets u_j$\;
+\While{$W\neq\varnothing$}{
+ Select $e\in W$ minimizing $c_{i r_e}$\;
+ Append $e$ to $O$; remove $e$ from $W$; $i\gets r_e$\;
+}
+\If{$|O|\geq2$}{
+ \Repeat{no strict improvement is found}{
+  Evaluate every reversal of a contiguous subsequence of at least two deliveries\;
+  Select a candidate with minimum open-path cost\;
+  \If{its cost is strictly smaller than that of $O$}{Replace $O$ by this candidate\;}
+ }
+}
+\Return{$(u_j,O)$}\;
+\caption{Internal delivery ordering}\label{alg:internal-routing}
+\end{algorithm}
+
+The source remains fixed, but the final station may change. The result is a
+local optimum for the reversal neighborhood, without considering the next
+mini-trip's source or the eventual garage return. Remaining ties in the three
+algorithms are resolved by fixed input order.
+
+\subsection{CP variables and notation}
+Let $J$ now denote the ordered mini-trips. Their fixed attributes are:
+\begin{description}
+\item[$u_j,p_j$.] Loading source and product of mini-trip $j$.
+\item[$q_j,I_j$.] Total quantity and internal open-path cost.
+\item[$e_j,R_j$.] Final delivery location and set of requests served.
+\end{description}
+For vehicle $k$, define:
+\begin{description}
+\item[$V_k$.] A sequence variable representing its mini-trips, with distinct
+start and end nodes $s_k,t_k$.
+\item[$m_{kj}\in\{0,1\}$.] A Boolean variable indicating whether mini-trip
+$j$ is required for vehicle $k$, linked to its membership in $V_k$.
+\item[$Z_k\in\mathbb{Z}_{\geq0}$.] Total transition cost of $V_k$.
+\item[$Z\in\mathbb{Z}_{\geq0}$.] Total cost over all vehicle sequences.
+\end{description}
+A required mini-trip must eventually appear, even if its position is not yet
+chosen. An unused vehicle has sequence $\langle s_k,t_k\rangle$.
+
+\subsection{Transition-cost matrix}
+The cost $C_{ij}$ depends on the kinds of sequence nodes involved:
+\begin{equation}
+C_{ij}=\begin{cases}
+c_{e_i u_j}+h_{p_i p_j}+I_j,&i,j\in J,\ i\neq j,\\
+c_{g_k u_j}+h_{b_k p_j}+I_j,&i=s_k,\ j\in J,\\
+c_{e_i g_k},&i\in J,\ j=t_k,\\
+0,&i=s_k,\ j=t_k,\\
++\infty,&\text{otherwise}.
+\end{cases}
+\label{eq:cp-transition-matrix}
+\end{equation}
+The first case connects two mini-trips and includes preparation and execution
+of the second one. The second departs from the garage and accounts for the
+initial product. The third returns home; the fourth allows an unused vehicle.
+Infinity denotes a forbidden transition. Endpoint constraints restrict each
+vehicle to its own start and end nodes.
+
+Including $I_j$ on entry counts each internal path once. Because every mini-trip
+is performed once, $\sum_jI_j$ is constant during CP optimization. The remaining
+decisions affect connecting travel and changeovers.
+
+\subsection{Global constraints and objective}
+The model uses named arithmetic and sequence relations.
+$\operatorname{Equal}(x,y)$, $\operatorname{LessThan}(x,y)$, and
+$\operatorname{LessOrEqual}(x,y)$ mean $x=y$, $x<y$, and $x\leq y$.
+$\operatorname{Sum}(X,z)$ constrains $z$ to the sum of the variables in $X$.
+These relations are combined with the following sequence constraints.
+
+\begin{description}
+\item[Membership and assignment.]
+$\operatorname{Member}(V_k,j,m_{kj})$ links the Boolean variable to mini-trip
+membership. Exactly one vehicle is required for each mini-trip:
+\[
+\operatorname{Sum}\bigl((m_{kj})_{k\in K},1\bigr)\qquad(j\in J).
+\]
+\item[Capacity compatibility.]
+A mini-trip that exceeds capacity is excluded:
+\[
+\operatorname{LessThan}(Q_k,q_j)\Rightarrow\operatorname{Exclude}(V_k,j)
+\qquad(k\in K,j\in J).
+\]
+Exclusion also imposes $\operatorname{Equal}(m_{kj},0)$.
+\item[Visit limits.]
+Mini-trips serving pieces of one request cannot share a vehicle:
+\[
+\operatorname{LessOrEqual}\left(\sum_{j\in J:r\in R_j}m_{kj},1\right)
+\qquad(k\in K,r\in R).
+\]
+\item[Vehicle endpoints.]
+For $k'\neq k$, impose $\operatorname{Exclude}(V_k,s_{k'})$ and
+$\operatorname{Exclude}(V_k,t_{k'})$. Each sequence retains its own endpoints.
+\item[Route cost.]
+$\operatorname{TransitionCost}(V_k,C,Z_k)$ relates the sequence to its total
+transition cost. For a fixed sequence $\langle s_k,j_1,\ldots,j_m,t_k\rangle$,
+\[
+Z_k=C_{s_kj_1}+\sum_{i=1}^{m-1}C_{j_i j_{i+1}}+C_{j_mt_k}.
+\]
+For an empty sequence, $Z_k=0$.
+\item[Total cost.]
+$\operatorname{Sum}((Z_k)_{k\in K},Z)$ aggregates the route costs.
+The objective is to minimize $Z$.
+\end{description}
+
+Here, $\operatorname{Member}$ denotes the mathematical membership relation.
+Demand satisfaction, stock usage, and product consistency follow from the
+constructed mini-trips. Capacity is checked per mini-trip, since vehicles
+reload between trips.
+
+Sequence variables support the membership and insertion relations used in
+this model~\cite{delecluse2025sequence}. The transition-cost relation builds
+on prior work on sequence constraints~\cite{minicpTransitionCost}. The matrix
+$C$ is not assumed to satisfy the triangle inequality; cost filtering and
+lower bounds must remain valid without that assumption.
 
 \subsection{Search strategy}
-% Separate feasibility propagation, search ordering, and cost bounding. Describe
-% first-fail selection, minimum-detour placement, insert/forbid branching,
-% incumbents, and stopping conditions as actually implemented.
+For an unplaced mini-trip $j$, let $F_j$ contain its allowed insertions
+$(k,i,l)$, where $i,l$ are consecutive members of $V_k$. Inserting $j$ between
+them changes cost by
+\[
+\operatorname{inc}(j;i,l)=C_{ij}+C_{jl}-C_{il}.
+\]
+Algorithm~\ref{alg:cp-search} selects a mini-trip with few insertion positions
+and explores a minimum-cost insertion first. Each child inherits the current
+domains; its changes are undone before the next child is explored.
 
-\subsection{Implementation}
-% Record MaxiCP and project versions. Document the original TransitionCost file
-% and commit, retained license/attribution, port changes, and problem-specific
-% transition matrix. Do not present the upstream constraint as a new invention.
+\begin{algorithm}[htbp]
+\SetAlgoLined
+\KwData{Current sequence and cost domains; shared best cost $Z^{best}$}
+Propagate the constraints and, if an incumbent exists, $\operatorname{LessThan}(Z,Z^{best})$\;
+\If{the state is inconsistent}{\Return\;}
+\If{all sequences are fixed}{
+ Record the solution and update $Z^{best}$\;
+ \Return\;
+}
+Form $F_j$ for each unplaced mini-trip\;
+\If{no unplaced mini-trip has an allowed insertion}{\Return\;}
+Select $j$ minimizing $|F_j|$ among those with $F_j\neq\varnothing$\;
+Select $(k,i,l)\in F_j$ minimizing $\operatorname{inc}(j;i,l)$\;
+Recursively explore the child with $\operatorname{Insert}(V_k,i,j)$\;
+Recursively explore the child with $\operatorname{NotBetween}(V_k,i,j,l)$\;
+\caption{Depth-first insertion search with objective improvement}\label{alg:cp-search}
+\end{algorithm}
+
+Initially, there is no incumbent and $Z^{best}=+\infty$. The first child places
+$j$ after $i$; the second forbids it between $i$ and $l$, leaving other positions
+available. The strategy combines first-fail selection, cost-guided branching,
+propagation, and backtracking.
+
+A completed search establishes optimality over the constructed mini-trips,
+provided its constraints and bounds are sound. If a computational limit is
+reached, the best feasible plan found is retained without claiming optimality.
 
 \section{Experimental setup}\label{sec:experimental-setup}
-
 \subsection{Instances}
-% Document the 100 synthetic instances: configurations, distributions, spatial
-% design, demands, stocks, capacities, product states, changeover matrices,
-% seeds, feasibility checks, and rejection/repair rules.
+The study uses 100 synthetic instances with varied configurations. Each specifies
+locations, product demands, stocks, vehicle capacities, initial product states,
+and changeover costs. Physical station counts are distinguished from request
+counts because a station may require several products.
 
-\subsection{Environment and validation}
-% Hardware, languages, exact solver/code versions and commits, threads, budgets,
-% seeds, and independent checker rules. Include construction in hybrid runtime.
+Generation ranges, distributions, random seeds, and feasibility checks must be
+recorded to make the collection reproducible. The number and quantity distribution
+of constructed mini-trips are also recorded for the CP approach.
 
-\subsection{Experiments and metrics}
-% Predefine the paired method comparison and the controlled with/without-
-% changeover experiment. Define statuses, denominators, percentage signs, and
-% zero handling. A reduced-CP bound is not automatically an original-problem
-% bound.
+\subsection{Evaluation conditions}
+Both methods are evaluated on the same data and cost convention. A common
+end-to-end computational budget includes preliminary construction, model
+preparation, and search. Search time is also reported separately.
+
+The final experimental description records the computing environment, solver
+versions, parallelism, stopping criteria, and the chosen $H$ for each MILP run.
+Numerical settings are to be completed from the experiment records; they are
+not assumptions of the mathematical formulations.
+
+Each plan is independently checked for demand, stock, capacity, product
+consistency, visit limits, continuity, and garage endpoints. Both objective
+components are recalculated, including initial preparation and final return.
+Selected zero-delivery visits in the MILP are identified so that their effect
+on the comparison remains explicit.
+
+\subsection{Method comparison}
+The evaluation distinguishes construction failure, absence of a feasible
+solution within the budget, a feasible solution without an optimality proof,
+and completed optimization. Neither a construction failure nor an interrupted
+search proves infeasibility of the original problem.
+
+Reported metrics include total cost, travel cost, changeover cost, used vehicles,
+loading operations, feasible-solution rate, and time to the best solution.
+MILP bounds and optimality gaps accompany the termination status~\cite{gurobiDocs}.
+For positive MILP incumbent cost $C_M$, the signed relative difference is
+\[
+D_C=100\frac{C_{CP}-C_M}{C_M}.
+\]
+A negative value indicates a cheaper CP plan than the incumbent, not necessarily
+than the MILP optimum. If $C_M=0$, the absolute difference is used. The MILP
+trip limit and fixed CP mini-trips impose different restrictions, so plan
+admissibility is checked before cost differences are interpreted.
+
+\subsection{Effect of changeover costs}
+A paired comparison fixes demands, stocks, locations, fleet data, initial
+states, and computational budgets. One plan uses the original changeover
+matrix $h$; the other uses a zero matrix. Both plans are subsequently evaluated
+under the same original matrix $h$.
+
+Let $A$ be the changeover-aware plan and $B$ the travel-only plan. When
+$C_h(B)>0$, the observed relative improvement is
+\[
+G_C=100\frac{C_h(B)-C_h(A)}{C_h(B)}.
+\]
+If the denominator is zero, report the absolute difference. Travel, changeovers,
+assignments, and trip orders are compared separately. Negative improvements
+remain possible under limited search effort and are reported.
+
+For CP, the same mini-trips are retained in both conditions. This isolates
+changeover effects on assignment and sequencing, without measuring alternative
+splitting, source selection, or internal routing.
