@@ -1,324 +1,508 @@
-This chapter introduces the concepts needed to understand the formulation
-and solution approach. It moves from routing problems to optimization
-methods and then to constraint programming. The examples and figures are
-illustrative constructions, not experimental instances or results. Their
-purpose is to explain the decisions and reasoning used later; the complete
-MPVRP-CC specification is given in Section~\ref{sec:problem-definition}.
+This chapter presents the concepts used to formulate and solve the problem
+studied in this thesis. It first introduces combinatorial optimization, then
+explains the main solution approaches, and finally describes the routing
+problems from which MPVRP-CC draws its characteristics. The $n$-queens problem
+provides a running example for distinguishing a problem, its model, and the
+procedure used to solve it.
 
-\section{Routing problems}\label{sec:routing-background}
+\section{Combinatorial optimization}
 
-\subsection{Traveling salesman problem}
+\subsection{Basic concepts}
 
-A routing problem can be represented by a graph $G=(V,A)$, where $V$ is a set
-of locations and $A$ is a set of permitted directed connections, called arcs.
-An arc $(i,j)$ has a cost $c_{ij}$, which may represent distance, travel time,
-or a monetary expense. These quantities must be distinguished even when
-one is used as a proxy for another. A path is an ordered sequence of
-connected locations; a tour returns to its starting location.
+An optimization problem asks us to choose the best feasible decision according
+to a specified criterion. In combinatorial optimization, the decisions involve
+discrete choices, such as assigning tasks, selecting objects, or ordering visits.
+The number of possible combinations can grow rapidly with the instance size.
 
-The \gls{tsp} asks for a minimum-cost tour visiting every required location
-once before returning to the starting point. Flood~\cite{flood1956tsp}
-provides a classical study of this problem. For a tour
-$\pi=(v_0,v_1,\ldots,v_n,v_0)$, its cost is
-\begin{equation}
- C(\pi)=\sum_{i=0}^{n-1}c_{v_i v_{i+1}}+c_{v_n v_0}.
- \label{eq:background-tour-cost}
-\end{equation}
-The return connection is included once. For an open path, that final
-connection would be omitted. In a symmetric instance, $c_{ij}=c_{ji}$;
-in an asymmetric instance, the two directions may have different costs.
-Geometric proximity alone therefore need not determine the cheapest tour.
+The following vocabulary is used throughout the chapter. The constraint-based
+view follows the terminology presented in the handbook edited by
+Rossi, van Beek, and Walsh~\cite{rossi2006handbook}.
 
-\subsection{Vehicle routing problem}
+\begin{description}
+\item[Variable.] A decision variable represents an unknown quantity whose value
+must be determined. Write $X=(x_1,\ldots,x_n)$ for the collection of variables.
+The value of a variable can represent a vehicle assignment, a quantity, or a
+position in an ordering.
 
-The \gls{vrp} extends routing decisions to a fleet. Besides choosing an
-order of visits, the planner must decide which vehicle serves each customer.
-In the capacitated version, customer $i$ has demand $q_i$ and vehicle $k$
-has capacity $Q_k$. A route carrying all its deliveries from the depot must
-satisfy
-\begin{equation}
- \sum_{i\in V_k}q_i\leq Q_k,
- \label{eq:background-capacity}
-\end{equation}
-where $V_k$ is its set of customers. This simple expression assumes a
-single loading operation, deliveries only, and no replenishment during the
-route. More general load evolution requires additional constraints.
-Toth and Vigo~\cite{toth2014vehicle} provide a broad treatment of routing
-models and methods.
+\item[Domain.] The domain $D(x_i)$ is the set of values allowed for $x_i$.
+Depending on its domain, a variable may be:
+\begin{itemize}
+ \item binary: $D(x_i)=\{0,1\}$;
+ \item integer: $D(x_i)\subseteq\mathbb{Z}$, or
+       $D(x_i)\subseteq\mathbb{N}$ when only nonnegative values are allowed;
+ \item continuous: $D(x_i)\subseteq\mathbb{R}$.
+\end{itemize}
+Finite-domain combinatorial models use discrete variables. Continuous variables
+may also appear in mixed models, for example to represent delivered quantities.
 
-Figure~\ref{fig:background-routes} contrasts a single tour with a feasible
-capacitated plan on the same customer set. The demands total nine units, so
-one vehicle of capacity five cannot deliver everything in one load. Two
-routes can carry five and four units, respectively. The drawing illustrates
-feasibility; it does not claim either depicted plan is optimal.
+\item[Constraint.] A constraint specifies which combinations of values are
+allowed. For example, $x_1\neq x_2$ forbids two variables from taking the same
+value, while $x_1+x_2\leq Q$ imposes an upper limit on their sum. Let $C$ denote
+the set of constraints.
 
-\begin{figure}[htbp]
- \centering
- \input{figures/background/routes}
- \caption{A single tour and a capacitated two-route plan on the same locations.
- Original illustrative example; arrows show the visit order.}
- \label{fig:background-routes}
-\end{figure}
+\item[Assignment.] A complete assignment $a=(a_1,\ldots,a_n)$ selects one value
+$a_i\in D(x_i)$ for every variable. A partial assignment fixes only some values.
 
-\subsection{Relevant VRP variants}
+\item[Feasible solution.] A complete assignment is feasible if it satisfies
+all constraints. The feasible set is
+\[
+ F=\left\{a\in\prod_{i=1}^{n}D(x_i): c(a)\text{ holds for every }c\in C\right\}.
+\]
+If $F=\varnothing$, the problem instance is infeasible.
 
-In a multi-trip setting, one vehicle can be used for several trips during
-the planning horizon~\cite{cattaruzza2016multipletrips}. This separates the
-number of vehicles from the number of trips. Figure~\ref{fig:multiple-trips}
-shows a conventional example with a return to the depot for replenishment.
-Throughout this chapter, a \emph{route} denotes a vehicle's complete ordered
-plan, while a \emph{trip} denotes one loading-and-delivery cycle. The example
-uses a single depot; it does not impose this depot-return convention on the
-problem-specific mini-trips introduced in Methodology.
+\item[Objective function.] An objective $f$ associates a numerical value with
+each feasible solution. It expresses the criterion to minimize or maximize,
+such as total cost, travel distance, or service quality.
 
-\begin{figure}[htbp]
- \centering
- \input{figures/background/multiple-trips}
- \caption{Two successive trips performed by one vehicle. The repeated depot
- symbols represent different visits to one location, not three depots.}
- \label{fig:multiple-trips}
-\end{figure}
+\item[Optimal solution.] For a minimization problem, $a^\star$ is optimal when
+\[
+ a^\star\in F\quad\text{and}\quad
+ f(a^\star)\leq f(a)\qquad\text{for every }a\in F.
+\]
+Several solutions can attain the same optimal value. Feasibility alone does
+not imply optimality.
+\end{description}
 
-Several other features can be combined: a heterogeneous fleet has vehicles
-with differing characteristics; multiple depots create loading-location
-choices; multiple products distinguish types of demand; and split deliveries
-allow demand to be served in more than one delivery. Rich VRP models combine
-operational requirements that interact~\cite{lahyani2015taxonomy}. The precise
-combination matters more than the label alone.
+\subsection{Satisfaction and optimization problems}
 
-A sequence-dependent changeover adds a cost associated with consecutive
-product states. Let $h_{pq}$ denote the cost of changing from product $p$
-to product $q$. It need not be symmetric. A loading charge that depends only
-on $q$ differs from a changeover charge that depends on both $p$ and $q$.
-This order dependence is analogous to the setup-cost principle studied in
-scheduling and lot-sizing~\cite{haase1994setup}.
+A \emph{constraint satisfaction problem} (CSP) is described by $(X,D,C)$:
+variables, their domains, and constraints. Its goal is to find an element of
+$F$, or establish that none exists. There is no objective ranking feasible
+solutions.
 
-For an illustration, take $h_{AA}=h_{BB}=0$, $h_{AB}=12$, and $h_{BA}=8$.
-Consider three fixed loads, two of product A and one of product B. Suppose
-the travel costs of two feasible orders are 40 and 44 monetary units, as
-shown in Figure~\ref{fig:changeover-example}. The first order costs
-$40+12+8=60$; the second costs $44+0+12=56$. The more expensive travel plan
-has the lower combined cost. Initial preparation and final cleaning are
-set to zero in this example, and all values use the same monetary unit.
-Actual initial states and terminal charges must be specified separately.
+A \emph{constraint optimization problem} (COP) adds an objective and its
+direction. In the minimization case, it can be written as
+\[
+ \min_{a\in F} f(a).
+\]
+Thus, a CSP asks ``Can these requirements be satisfied?'', whereas a COP asks
+``Which feasible solution has the best objective value?'' The same application
+may be studied in either form, depending on the question being asked.
+
+\subsection{Example: the $n$-queens problem}
+
+The $n$-queens problem consists of placing $n$ queens on an $n\times n$
+chessboard so that no two queens attack each other. Queens must not share a
+row, a column, or a diagonal. It is naturally a satisfaction problem: any
+non-attacking arrangement is acceptable.
+
+Place one queen in each column and let $q_i$ denote its row in column $i$.
+Then $D(q_i)=\{1,\ldots,n\}$. For every $i<j$, the requirements are
+\[
+ q_i\neq q_j,
+ \qquad |q_i-q_j|\neq |i-j|.
+\]
+The first condition prevents shared rows; the second prevents shared diagonals.
+Having one variable per column already enforces the column requirement.
+For $n=4$, the assignment $(q_1,q_2,q_3,q_4)=(2,4,1,3)$ is feasible.
 
 \begin{figure}[htbp]
  \centering
- \input{figures/background/changeovers}
- \caption{An illustrative travel--changeover trade-off. Both plans serve the
- same loads; all costs are invented monetary values. No optimality claim is made.}
- \label{fig:changeover-example}
+ \input{figures/background/nqueens}
+ \caption{A feasible four-queens arrangement. Each labelled circle represents
+ a queen; columns encode variables and rows encode their values.}
+ \label{fig:nqueens}
 \end{figure}
 
-\section{Optimization methods}\label{sec:optimization-background}
+\subsection{Computational complexity}
 
-\subsection{Mathematical programming}
+Complexity describes how the resources needed by an algorithm grow with the
+size of its input. The classes below concern \emph{decision problems}, whose
+answer is yes or no~\cite{cornell2015complexity}.
 
-An optimization model specifies decision variables, a feasible set, and an
-objective. A solution is feasible when all constraints hold. An optimal
-solution has the best objective value among the feasible solutions of the
-specified model. A \gls{milp} uses a linear objective and linear constraints,
-with some variables restricted to integer values; binary variables take
-values in $\{0,1\}$.
+\begin{description}
+\item[P.] Problems solvable in polynomial time by a deterministic algorithm.
+\item[NP.] Problems for which a yes-answer has a certificate verifiable in
+polynomial time. NP does not mean ``non-polynomial''.
+\item[NP-hard.] A problem is NP-hard if every problem in NP can be reduced
+to it in polynomial time. It need not itself belong to NP.
+\item[NP-complete.] A decision problem that is both in NP and NP-hard.
+\end{description}
 
-Consider a small assignment model. Let $I$ be a set of indivisible loads,
-$K$ a set of vehicles, $q_i$ the size of load $i$, $Q_k$ vehicle capacity,
-and $a_{ik}$ the assignment cost. Define $x_{ik}=1$ if load $i$ is assigned
-to vehicle $k$, and zero otherwise. One possible model is
-\begin{align}
- \min\quad &\sum_{i\in I}\sum_{k\in K}a_{ik}x_{ik},
-       \label{eq:assignment-objective}\\
- \text{subject to}\quad &\sum_{k\in K}x_{ik}=1 &&\forall i\in I,
-       \label{eq:assignment-once}\\
- &\sum_{i\in I}q_i x_{ik}\leq Q_k &&\forall k\in K,
-       \label{eq:assignment-capacity}\\
- &x_{ik}\in\{0,1\} &&\forall i\in I,\ k\in K.
-\end{align}
-Equation~\eqref{eq:assignment-once} assigns every load exactly once, and
-Equation~\eqref{eq:assignment-capacity} limits the combined assigned load.
-This is a single-loading allocation example: it contains no travel,
-sequencing, or replenishment decisions. In particular, a multi-trip model
-must not constrain all quantities delivered during the day by one vehicle
-to fit within a single vehicle load.
+We know that $\mathrm{P}\subseteq\mathrm{NP}$; whether these classes are equal
+remains unresolved. NP-hardness does not mean that every instance is difficult.
 
-An exact formulation and a completed proof of optimality are different
-things. For a minimization problem, the cost of any feasible solution gives
-an upper bound $UB$ on the optimum $z^*$, while a valid lower bound $LB$
-satisfies
-\begin{equation}
- LB\leq z^*\leq UB.
-\end{equation}
-Equality certifies optimality, subject to the solver's numerical tolerances.
-If a run ends earlier, its incumbent may still be useful without being
-proven optimal. For positive $UB$, one possible reporting convention is
-$100(UB-LB)/UB$; the denominator and treatment of zero must always be stated.
-Solver-reported conventions should be checked in the relevant
-documentation~\cite{gurobiDocs}.
+An optimization problem can be associated with a decision question: ``Does a
+feasible solution of cost at most $B$ exist?'' This distinction matters when
+classifying routing problems: the optimization TSP is NP-hard, while its
+standard decision version is NP-complete. The ordinary $n$-queens example is
+used here to explain modeling, not as evidence of NP-hardness.
 
-\subsection{Heuristics}
+\subsection{From a problem to a solver}
 
-A construction heuristic builds a solution through selected decisions;
-an improvement heuristic modifies an existing solution. These ideas are
-common in routing~\cite{laporte2000heuristics}. Their attraction is practical
-search effort, but a locally attractive choice need not be globally best.
-A hybrid approach combines such choices with another optimization method;
-the exact division of decisions determines what remains open to search.
+Solving an application requires several steps:
+\begin{enumerate}
+ \item \textbf{Problem:} identify the practical situation and the planning need.
+ \item \textbf{Problem definition:} specify the data, decisions, assumptions,
+ constraints, and objective.
+ \item \textbf{Models:} translate this definition into mathematical objects,
+ for example a MILP model or a CP model.
+ \item \textbf{General-purpose solver:} implement the selected model in a
+ compatible solver and configure its search and stopping criteria.
+\end{enumerate}
 
-Three elementary operations help explain the later methodology. A
-\emph{best-fit} packing rule places an item in the admissible group with the
-least remaining capacity after insertion. With capacity six and item sizes
-four, three, and two processed in that order, it creates groups $(4,2)$ and
-$(3)$. Additional compatibility conditions can exclude a group even when it
-has enough space. The rule is a packing choice, not a proof of an optimal
-routing plan.
+A solver operates on the model it receives. Consequently, a mathematically
+optimal result is useful only if the model correctly represents the intended
+problem. Returned solutions must also be checked against the problem definition.
 
-A \emph{nearest-neighbour} rule selects the nearest admissible unvisited
-location from the current endpoint. This does not explicitly anticipate the
-remaining visits or the final connection. An insertion rule instead places
-a visit between two existing visits. If the current connection is $(i,j)$,
-inserting $u$ changes an additive transition cost by
-\begin{equation}
- \Delta(i,u,j)=c_{iu}+c_{uj}-c_{ij}.
- \label{eq:insertion-delta}
-\end{equation}
-Choosing the smallest feasible $\Delta$ is a search preference; it does not
-guarantee the cheapest completed route.
+\begin{figure}[htbp]
+ \centering
+ % Replace this framed placeholder with the author's process diagram.
+ \fbox{\parbox[c][35mm][c]{0.90\textwidth}{\centering
+ Space reserved for the process diagram\\[1em]
+ Problem $\rightarrow$ Problem definition $\rightarrow$
+ Models $\rightarrow$ General-purpose solver}}
+ \caption{From an application problem to a solver implementation
+ (diagram to be supplied).}
+ \label{fig:modeling-process}
+\end{figure}
 
-A \emph{2-opt} move removes two connections and reconnects the path by
-reversing the intervening segment. Figure~\ref{fig:two-opt} gives an open-path
-example with fixed endpoints. With Euclidean, hence symmetric, travel costs,
-reversing the middle segment reduces the length from approximately 10.21 to
-7. For asymmetric costs, the costs of reversed internal arcs must also be
-recomputed. When products are involved, transition charges and feasibility
-must be checked as well; a geometrically shorter path need not have a lower
-total operational cost.
+\section{Solution methods}
+
+The following approaches offer different ways to explore a solution space.
+They can also be combined: a MILP solver may use heuristics, while a CP solver
+may use heuristic rules to order a systematic search.
+
+\subsection{Heuristics and metaheuristics}
+
+\textbf{Heuristic.} A heuristic is a rule or procedure intended to find useful
+solutions with limited computational effort, without generally guaranteeing
+an optimal solution. A construction heuristic builds a solution progressively;
+an improvement heuristic modifies an existing solution.
+
+\textbf{Nearest neighbor.} Starting from a location $i$, select the closest
+unvisited eligible location:
+\[
+ j\in\arg\min_{v\in U_i}c_{iv},
+\]
+where $U_i$ contains the currently eligible candidates. Repeat until the tour
+is complete. This rule is simple, but an attractive immediate move can leave
+an expensive final connection. With additional routing constraints, it can
+also lead to a dead end.
+
+\textbf{2-opt.} In a symmetric tour, remove two non-adjacent edges and reconnect
+the resulting segments by reversing the intervening segment. Replacing
+$(a,b)$ and $(c,d)$ with $(a,c)$ and $(b,d)$ improves the cost when
+\[
+ c_{ac}+c_{bd}<c_{ab}+c_{cd}.
+\]
+Feasibility must still be checked. For asymmetric costs, the costs of all
+reversed internal arcs also matter. Figure~\ref{fig:two-opt} illustrates the
+same reconnection on an open path; its endpoints remain fixed.
 
 \begin{figure}[htbp]
  \centering
  \input{figures/background/two-opt}
- \caption{A 2-opt improvement of an open path with fixed endpoints $A$ and $D$.
- Distances are Euclidean in arbitrary length units; no changeover costs apply.}
+ \caption{A 2-opt improvement with Euclidean distances. The illustrated path
+ becomes shorter after reversing its middle segment.}
  \label{fig:two-opt}
 \end{figure}
 
-\section{Constraint programming}\label{sec:cp-background}
+\textbf{Metaheuristic.} A metaheuristic is a broader search strategy organizing
+heuristic decisions and exploration. Examples include tabu search, simulated
+annealing, genetic algorithms, and large neighborhood search. Such strategies
+help explore beyond the solutions reached by a single greedy rule or local
+improvement procedure~\cite{laporte2000heuristics,shaw1998constraint}.
 
-\subsection{Basic concepts}
+\textbf{A simple four-queens heuristic.} Process columns from left to right
+and choose the smallest row that does not conflict with an already placed
+queen. This gives $q_1=1$, then $q_2=3$. No row is then available for column
+3, so the procedure stops without a solution, although a solution exists.
 
-A CP model consists of variables, their domains, and constraints relating
-them. A domain records the values or configurations still allowed for a
-variable. Propagation removes possibilities that cannot satisfy the
-constraints, while search explores alternatives that propagation has not
-resolved. An objective allows feasible solutions to be compared. These
-foundations are presented in the handbook edited by Rossi, van Beek, and
-Walsh~\cite{rossi2006handbook}.
+This example separates failure of a heuristic from infeasibility of a problem.
+A restart can try different choices. Alternatively, systematic backtracking
+can revisit earlier decisions and explore the remaining alternatives.
 
-For an original example, let $y_A$ and $y_B$ identify the vehicles assigned
-to two indivisible loads of sizes six and four. The vehicle capacities are
-five and ten. Initially both assignment domains are $\{1,2\}$. Since the
-first vehicle cannot carry load A, propagation removes 1 from $D(y_A)$.
-Both choices remain possible for B: it can occupy vehicle 1 alone, or share
-vehicle 2 with A, giving a combined load of ten. The capacity rule has reduced
-the decision space without deciding everything.
+\subsection{Linear and mixed-integer programming}
 
-\begin{figure}[htbp]
- \centering
- \input{figures/background/propagation}
- \caption{Capacity-based domain reduction in a toy single-load assignment
- problem. Vehicle 1 is removed from A's domain; B retains two possibilities.}
- \label{fig:propagation}
-\end{figure}
+\textbf{Linear programming.} A linear program (LP) has a linear objective,
+linear constraints, and continuous variables. One standard form is
+\begin{align*}
+ \min\quad & c^\top x\\
+ \text{subject to}\quad & Ax\leq b,\\
+ & x\geq 0,
+\end{align*}
+where $x\in\mathbb{R}^n$ is the decision vector, $c$ contains objective
+coefficients, and $A$ and $b$ encode constraints. Equalities and other variable
+bounds can also be included.
 
-A search decision can now choose $y_B=1$, with an alternative branch
-$y_B=2$. Propagation follows each decision. A branch is abandoned if a
-constraint becomes impossible; search can then backtrack. The
-\emph{first-fail} principle prioritizes a decision with few remaining
-possibilities. In optimization, a valid bound can also rule out a branch
-that cannot improve the incumbent. The strength of these deductions depends
-on the model and propagators; expressing a constraint does not imply that
-all infeasible combinations are detected before search.
+\textbf{Mixed-integer linear programming.} A MILP additionally requires
+$x_i\in\mathbb{Z}$ for selected indices $i\in I$. Binary variables are integer
+variables restricted to $\{0,1\}$. They can represent choices such as using a
+vehicle or traversing an arc. Continuous variables can represent quantities.
+The objective and constraints remain linear.
 
-\subsection{Routing models}
+\textbf{Relaxation.} The LP relaxation removes integrality requirements.
+Its feasible set contains that of the MILP, so for minimization its optimal
+value is a lower bound on the integer optimum. For example,
+\[
+ \min x\quad\text{subject to }2x\geq3,\quad x\geq0,\quad x\in\mathbb{Z}
+\]
+has optimum $x=2$, whereas its LP relaxation has optimum $x=1.5$.
 
-A successor representation associates a visit with the next visit in its
-route. Constraints must ensure the required visits are connected correctly:
-local successor choices alone can create disconnected cycles. Circuit
-constraints capture some of this structure, and richer variants can handle
-multiple circuits and cost bounds~\cite{vismara2018circuit}. An alternative
-uses interval variables to describe activities and their temporal relations,
-as in the multiple-salesman model of Vali and
-Salimifard~\cite{vali2017mtsp}.
+\textbf{Branch-and-bound.} The solver divides the problem into subproblems.
+If a relaxed solution has $x_i=2.4$, for example, it may create the branches
+$x_i\leq2$ and $x_i\geq3$. Relaxations provide lower bounds; feasible integer
+solutions provide upper bounds. A branch is discarded when it is infeasible
+or its bound shows that it cannot improve the best solution found.
 
-The choice of representation influences both modeling and search. Insertion
-search is particularly natural when an incomplete route is maintained as an
-ordered sequence. This motivates the sequence-variable representation used
-in this work~\cite{delecluse2022sequence}. The word ``sequence'' alone does
-not identify an implementation: scheduling sequences over intervals and
-insertion-based routing sequences have different interfaces and domain
-representations.
+\textbf{Branch-and-cut.} This extends branch-and-bound by adding valid
+inequalities, called cuts, which exclude unwanted fractional solutions
+without removing feasible integer solutions. These techniques underlie
+modern MILP solvers~\cite{gurobiMipBasics,gurobiDocs}.
+
+A solver stopped by a time limit may return a feasible incumbent without
+proving optimality. For minimization, valid bounds satisfy
+$LB\leq z^\star\leq UB$; they must be reported alongside the solution status.
+
+\subsection{Constraint programming}
+
+\textbf{Paradigm.} Constraint programming (CP) expresses a problem using
+variables, domains, and relations that must hold between their values. It
+supports both satisfaction and optimization. In finite-domain CP, propagation
+and search cooperate to reduce and explore the candidate assignments
+\cite{rossi2006handbook}.
+
+\subsubsection{Types of constraints}
+
+\begin{description}
+\item[Arithmetic constraints.] These relate numerical expressions, such as
+$x+y\leq Q$, $x\neq y$, or $|q_i-q_j|\neq|i-j|$.
+\item[Logical constraints.] These express combinations or implications, such
+as $b=1\Rightarrow x\leq Q$, where $b$ is binary. Reification links a Boolean
+variable to the truth of a constraint, for example $b\Leftrightarrow(x<y)$.
+\item[Global constraints.] These describe a structured relation over a group
+of variables. For example, $\operatorname{AllDifferent}(x_1,\ldots,x_n)$
+requires pairwise distinct values; $\operatorname{Circuit}$ describes a tour;
+and cumulative constraints limit simultaneous resource use. A dedicated
+propagator can exploit the structure of the entire relation.
+\end{description}
+
+\subsubsection{Filtering, propagation, and inconsistency}
+
+\textbf{Filtering.} A filtering algorithm removes domain values that cannot
+participate in a solution of the constraint under the current domains.
+Correct filtering preserves every feasible completion. Its strength depends
+on the consistency level enforced; it need not detect every impossible value.
+
+\textbf{Propagation.} When a domain changes, affected constraints apply their
+filtering algorithms. This process repeats until no further reduction is
+obtained, or a failure is detected. For instance, if
+$D(x)=D(y)=\{1,2\}$ and $x<y$, propagation yields
+$D(x)=\{1\}$ and $D(y)=\{2\}$.
+
+\textbf{Inconsistency.} A current search state is inconsistent when no complete
+assignment extending it satisfies all constraints. An empty domain is a clear
+sign of failure. However, nonempty domains after propagation do not necessarily
+prove that a feasible completion exists.
+
+\subsubsection{Systematic search and branching}
+
+If propagation does not determine a complete solution, the solver makes a
+branching decision. A common binary split is
+\[
+ x=v \qquad\text{or}\qquad x\neq v.
+\]
+Each branch triggers propagation. On failure, the solver backtracks and tries
+another alternative. Exhaustively exploring a finite search space can prove
+infeasibility or optimality, provided the search is complete and is not stopped
+early.
+
+Branching has two main choices:
+\begin{itemize}
+ \item \textbf{Variable selection:} choose the next variable, for example the
+ one with the smallest non-singleton domain (the first-fail rule).
+ \item \textbf{Value selection:} choose which value or domain part to explore
+ first, for example the smallest value or a value expected to leave more
+ possibilities for other variables.
+\end{itemize}
+
+These heuristic choices determine the exploration order. They do not make an
+otherwise exhaustive search incomplete. For a COP, objective bounds can also
+remove branches that cannot improve the incumbent.
+
+\subsubsection{A CP model for $n$-queens}
+
+The earlier definition translates into a compact model:
+\begin{align*}
+ &q_i\in\{1,\ldots,n\} && i=1,\ldots,n,\\
+ &\operatorname{AllDifferent}(q_1,\ldots,q_n),\\
+ &\operatorname{AllDifferent}(q_1-1,q_2-2,\ldots,q_n-n),\\
+ &\operatorname{AllDifferent}(q_1+1,q_2+2,\ldots,q_n+n).
+\end{align*}
+The first global constraint prevents shared rows. The other two prevent shared
+diagonals because squares on the same diagonal have the same row-minus-column
+or row-plus-column value. These expressions can be represented by auxiliary
+variables or views, depending on the solver. No objective is required.
+
+For four queens, setting $q_1=2$ removes rows 1, 2, and 3 from $D(q_2)$,
+leaving $q_2=4$. Further propagation gives $q_3=1$ and $q_4=3$.
+This illustrates how the model communicates consequences between decisions.
+
+\subsubsection{Successor variables}
+
+In a routing model, a successor variable $s_i$ identifies the node visited
+immediately after node $i$. Its domain contains the permitted successors.
+For a tour on $V$, the assignments $s_1=3$, $s_3=2$, and $s_2=1$ represent
+$1\rightarrow3\rightarrow2\rightarrow1$.
+
+Requiring distinct successors alone can produce several disjoint cycles.
+A circuit constraint additionally enforces the required single cycle.
+Multiple routes and optional visits require appropriate extensions of this
+representation~\cite{vismara2018circuit}. The interpretation of self-loops and
+depot copies must therefore be stated by the particular model.
 
 \subsection{Sequence variables}
 
-An insertion-based sequence variable represents a set of possible ordered
-sequences of distinct elements. Its state describes a partial order already
-established, membership requirements, and insertion restrictions. An element
-may already be placed, be required but not yet placed, remain optional, or be
-excluded. In particular, requiring an element does not necessarily fix its
-position. The domain and its update operations are formalized by Delecluse
-et al.~\cite{delecluse2025sequence}.
+Delecluse et al.~\cite{delecluse2025sequence} formalize a domain whose values
+are sequences of distinct nodes. Fixed start and end nodes delimit a route.
+The domain combines a partial sequence, required and excluded nodes, and
+restrictions on insertion positions.
 
-Figure~\ref{fig:sequence-insertion} illustrates a partial sequence
-$\langle s,a,b,t\rangle$, with fixed start and end markers $s$ and $t$.
-Element $r$ must occur but has not been placed; $o$ is optional and $x$ is
-excluded. Suppose no other restrictions prevent insertion of $r$ into any
-of the three shown gaps. Selecting the middle gap gives
-$\langle s,a,r,b,t\rangle$. Existing elements preserve their relative order,
-but new elements can be inserted between them. The picture shows a choice
-in a domain, not an assertion that every such insertion is feasible under
-all constraints of an application.
+A required node must occur in every completion but need not yet be placed.
+An optional node may still be included or excluded. Insertion preserves the
+relative order of already placed nodes; it does not permanently fix their
+adjacency.
+
+For example, inserting $r$ into $\langle s,a,b,t\rangle$ can yield
+$\langle s,a,r,b,t\rangle$. The domain supports insertion, requiring a node,
+excluding a node, and forbidding its occurrence between specified nodes.
+Search branches on such choices, while constraints filter the domain.
+Distance, transition-time, precedence, and cumulative constraints connect
+sequences to routing requirements. A fixed variable represents one complete
+sequence, with membership decisions resolved. This representation supports
+optional visits and insertion-based search directly.
 
 \begin{figure}[htbp]
  \centering
  \input{figures/background/sequence-insertion}
- \caption{A required element inserted into a partial sequence. Orange dashed
- arrows mark alternative gaps, not three simultaneous visits. Optional element
- $o$ remains undecided, so the resulting sequence is not yet fixed.}
+ \caption{Insertion into a partial sequence. Dashed arrows indicate alternative
+ insertion positions, not simultaneous visits.}
  \label{fig:sequence-insertion}
 \end{figure}
 
-This distinction between a partial sequence and a fixed sequence is important.
-In the example, the domain still admits a completion without $o$ and
-completions that insert $o$ at admissible positions. Excluded $x$ cannot occur.
-For a fleet, an operation may initially be a candidate in several vehicle
-sequences; an assignment constraint must ensure that a required operation
-belongs to exactly one final sequence.
+\section{Routing problems}\label{sec:routing-background}
 
-Once a sequence is fixed as
-$\sigma=\langle s,u_1,\ldots,u_m,t\rangle$, an additive transition-cost
-expression is
-\begin{equation}
- C(\sigma)=\tau_{s u_1}
-           +\sum_{i=1}^{m-1}\tau_{u_i u_{i+1}}
-           +\tau_{u_m t},\qquad m\geq1,
- \label{eq:sequence-cost}
-\end{equation}
-where $\tau_{ij}$ is the cost of following element $i$ by element $j$.
-An empty sequence has the explicitly defined cost $\tau_{st}$. Any internal
-cost attached to an element must be counted separately or included exactly
-once by a consistent convention. Methodology specifies how travel and
-product changeovers enter these costs.
+\subsection{From the TSP to the VRP}
 
-A cost expression on a completed sequence does not by itself define a
-strong lower bound on a partial sequence. For example, if
-$\tau_{ab}=20$, $\tau_{ar}=3$, and $\tau_{rb}=4$, inserting $r$ replaces a
-cost of 20 by 7. Thus, the current partial-sequence cost need not be a lower
-bound when the transition matrix lacks the triangle inequality. This
-example also shows why the insertion increment in
-Equation~\eqref{eq:insertion-delta} can be negative. A propagator's bounds
-must be justified for the cost assumptions actually used.
+The traveling salesman problem (TSP) asks for a minimum-cost tour visiting
+each required location once and returning to its origin. Dantzig, Fulkerson,
+and Johnson's 1954 study is a foundational contribution to its mathematical
+solution~\cite{dantzig1954tsp}. Dantzig and Ramser subsequently studied truck
+routing with delivery requirements and vehicle capacity~\cite{dantzig1959truck},
+a foundational formulation of the vehicle routing problem (VRP).
 
-These concepts provide the foundation for the next chapter. They do not
-prescribe every operational rule of MPVRP-CC. The problem definition, the
-construction choices, the CP constraints, and the implemented search are
-presented separately so that theoretical properties and properties of the
-actual solution method remain distinguishable.
+The VRP adds fleet assignment to visit ordering: the planner decides both
+which vehicle serves a customer and in which order its visits occur.
+The notation below will support the variant descriptions
+\cite{toth2014vehicle}.
+
+\begin{description}
+ \item[$G=(V,A)$.] A directed graph, with locations $V$ and permitted arcs $A$.
+ \item[$N$ and $D$.] Customer and depot sets, with $V=N\cup D$.
+ \item[$K$.] The set of available vehicles.
+ \item[$c_{ij}$.] Travel cost on arc $(i,j)\in A$.
+ \item[$d_i$ and $Q_k$.] Customer demand and vehicle capacity, respectively.
+\end{description}
+
+Costs may be symmetric ($c_{ij}=c_{ji}$) or asymmetric. The cost of a tour
+$\pi=(v_0,v_1,\ldots,v_m,v_0)$ is
+\[
+ C(\pi)=\sum_{j=0}^{m-1}c_{v_jv_{j+1}}+c_{v_mv_0}.
+\]
+For several vehicles, travel cost is summed over their routes. Other terms,
+such as vehicle-use costs or changeover costs, can be included in the objective.
+
+\textbf{Fleet types.} A homogeneous fleet has identical relevant vehicle
+characteristics. A heterogeneous fleet may have different capacities,
+operating costs, or product compatibilities. A fixed-fleet problem specifies
+the available vehicles; fleet-size or fleet-composition variants additionally
+decide how many vehicles, or which types, to use.
+
+\subsection{Capacitated vehicle routing}
+
+The capacitated VRP limits the load carried by each vehicle. In the basic
+single-depot delivery setting, every customer is served once and every route
+starts and ends at the depot. If vehicle $k$ loads all deliveries at departure
+and serves customers $N_k$, feasibility requires
+\[
+ \sum_{i\in N_k}d_i\leq Q_k.
+\]
+This expression applies to one delivery load. With reloading or pickups,
+capacity must instead be respected as the load evolves.
+
+\begin{figure}[htbp]
+ \centering
+ \input{figures/background/routes}
+ \caption{A TSP tour and a feasible capacitated routing plan. Customer demands
+ are denoted by $d_i$.}
+ \label{fig:background-routes}
+\end{figure}
+
+\subsection{Vehicle routing with multiple trips}
+
+A multi-trip VRP allows a vehicle to perform several trips within the planning
+horizon~\cite{cattaruzza2016multipletrips}. After completing a delivery trip,
+a vehicle can return to a loading facility and depart with another load.
+The number of trips can therefore exceed the number of vehicles.
+
+In this chapter, a trip denotes one loading-and-delivery cycle, while a vehicle
+route denotes its complete ordered plan. Trip assignment and trip succession
+both matter when the same vehicle is reused. Figure~\ref{fig:multiple-trips}
+shows a conventional single-depot example; more general settings can allow
+several loading facilities.
+
+\begin{figure}[htbp]
+ \centering
+ \input{figures/background/multiple-trips}
+ \caption{Two successive trips carried out by the same vehicle. Repeated depot
+ symbols refer to the same physical location.}
+ \label{fig:multiple-trips}
+\end{figure}
+
+\subsection{Multi-product and multi-commodity routing}
+
+Multi-product routing distinguishes product types. Let $P$ be the product set
+and $d_{ip}$ the demand for product $p$ at customer $i$. Vehicles must satisfy
+these demands while respecting the relevant loading and compatibility rules.
+A vehicle may carry one product per trip, several products together, or
+separated products in compartments, depending on the application.
+
+The term multi-commodity also distinguishes flows, potentially by product,
+origin, or destination. It does not by itself specify whether goods can mix.
+These assumptions must be stated explicitly. Product-dependent preparation
+makes the order of loads important: a transition from $p$ to $p'$ may incur
+$h_{pp'}$, with no requirement that $h_{pp'}=h_{p'p}$.
+
+\subsection{Split deliveries and depot-related routing}
+
+\textbf{Split deliveries.} A customer's demand may be fulfilled through
+several visits or vehicles. If $y_{ikp}$ is the total quantity of product $p$
+delivered to customer $i$ by vehicle $k$, demand satisfaction can be expressed
+as $\sum_{k\in K}y_{ikp}=d_{ip}$. Allowing a split changes the assignment
+structure compared with serving each demand in one visit.
+
+\textbf{Depots and available stock.} Multiple-depot settings add decisions
+about loading locations or vehicle bases. If depot $d$ holds $S_{dp}$ units
+of product $p$, total withdrawals of that product cannot exceed $S_{dp}$.
+These stock constraints couple routes through a shared resource.
+
+\textbf{Inventory routing.} Inventory-routing problems jointly plan routing
+and replenishment over time, usually tracking inventory levels across periods.
+A single-period problem with limited depot stocks has an inventory-related
+constraint, but is not automatically a full inventory-routing problem.
+These distinctions help locate a rich variant within the routing literature
+\cite{toth2014vehicle,lahyani2015taxonomy}.
+
+\subsection{Connection to MPVRP-CC}
+
+MPVRP-CC combines capacity limits, repeated vehicle trips, multiple products,
+split deliveries, and depot stock availability. It additionally associates a
+changeover cost with the succession of products carried by a vehicle.
+Consequently, a plan with less travel need not have the lowest total cost.
+
+These ingredients explain its position among rich VRPs. The precise
+assumptions, the station--product requests and depot--product supply nodes,
+and the mathematical constraints are defined once in
+Section~\ref{sec:problem-definition}. The present chapter supplies the concepts
+needed to read that definition and the subsequent MILP and CP models.

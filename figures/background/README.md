@@ -1,7 +1,9 @@
 # Original TikZ examples
 
 Load `figures/tikz-style.tex` in the preamble. Each `.tex` file here contains
-one `tikzpicture` and is included from `2-partie/1-fichier.tex`.
+one `tikzpicture`. The current chapter includes routes, multiple trips,
+2-opt, sequence insertion, and n-queens. The changeover and load-propagation
+examples remain available as optional illustrations.
 
 1. `routes.tex`: same four customers, one TSP tour versus two capacity-feasible
    VRP routes (demands 2, 3, 2, 2; vehicle capacity 5).
@@ -16,3 +18,5 @@ one `tikzpicture` and is included from `2-partie/1-fichier.tex`.
 Colours are paired with text labels and/or line styles. All examples are
 illustrations, not the thesis dataset or reported solver results. They are
 new drawings, not reproductions of figures from the cited papers.
+
+7. `nqueens.tex`: feasible four-queens assignment (2, 4, 1, 3).

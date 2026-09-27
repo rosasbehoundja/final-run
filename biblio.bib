@@ -25,12 +25,14 @@
 %   Use the studies actually compared in the feature matrix.
 %
 % 3. THEORETICAL BACKGROUND
-% 3.1 Routing Problems
-%   flood1956tsp toth2014vehicle cattaruzza2016multipletrips lahyani2015taxonomy haase1994setup
-% 3.2 Optimization Methods
-%   toth2014vehicle laporte2000heuristics
-% 3.3 Constraint Programming
-%   rossi2006handbook vali2017mtsp vismara2018circuit delecluse2022sequence delecluse2025sequence
+% 3.1 Combinatorial optimization
+%   rossi2006handbook cornell2015complexity
+% 3.2 Solution methods
+%   laporte2000heuristics shaw1998constraint gurobiDocs rossi2006handbook
+%   vismara2018circuit delecluse2025sequence
+% 3.3 Routing problems
+%   dantzig1954tsp dantzig1959truck toth2014vehicle
+%   cattaruzza2016multipletrips lahyani2015taxonomy
 %
 % 4. METHODOLOGY
 % 4.1 Problem Definition
@@ -406,4 +408,35 @@
   publisher = {Elsevier},
   doi = {10.1016/j.tre.2024.103681},
   url = {https://doi.org/10.1016/j.tre.2024.103681}
+}
+
+% Theoretical background: historical routing foundations and complexity.
+@article{dantzig1954tsp,
+ author = {Dantzig, George and Fulkerson, Ray and Johnson, Selmer},
+ title = {Solution of a Large-Scale Traveling-Salesman Problem},
+ journal = {Journal of the Operations Research Society of America},
+ volume = {2}, number = {4}, pages = {393--410}, year = {1954},
+ doi = {10.1287/opre.2.4.393}
+}
+@article{dantzig1959truck,
+ author = {Dantzig, George B. and Ramser, John H.},
+ title = {The Truck Dispatching Problem},
+ journal = {Management Science},
+ volume = {6}, number = {1}, pages = {80--91}, year = {1959},
+ doi = {10.1287/mnsc.6.1.80}
+}
+@misc{cornell2015complexity,
+ author = {{Cornell University}},
+ title = {{P}, {NP}, and {NP} Completeness},
+ year = {2015},
+ howpublished = {CS 2800 lecture notes, Fall 2015},
+ url = {https://www.cs.cornell.edu/courses/cs2800/2015fa/lectures/lec36-np.html}
+}
+
+@misc{gurobiMipBasics,
+ author = {{Gurobi Optimization}},
+ title = {Mixed-Integer Programming: An Intro to the Basics},
+ howpublished = {Online technical introduction},
+ url = {https://www.gurobi.com/resources/blog/mixed-integer-programming-an-introduction-to-the-basics},
+ urldate = {2026-09-27}
 }

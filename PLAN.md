@@ -13,7 +13,7 @@ Citation keys refer to the companion `.bib` file; for example, use `\cite{cattar
 
 1. **Introduction** — Context and Motivation; Problem Statement; Objectives; Thesis Organization.
 2. **Literature Review** — Relevant Routing Variants; Cleaning and Changeover Costs; Solution Methods; Research Gap.
-3. **Theoretical Background** — Routing Problems; Optimization Methods; Constraint Programming.
+3. **Theoretical Background** — Combinatorial optimization; Solution methods; Routing problems.
 4. **Methodology** — Problem Definition; MILP Model; Proposed Approach; Experimental Setup.
 5. **Results and Discussion** — Method Comparison; Effect of Changeover Costs; Discussion and Limitations.
 6. **Conclusion and Future Work**.
@@ -127,37 +127,25 @@ Use three simple subsections if helpful: **Exact Methods**, **Heuristics and Hyb
 
 ## 3. Theoretical Background
 
-**Purpose:** Provide just enough theory to understand Chapter 4. Use a small running example where useful. Keep problem-specific rules and notation in Problem Definition.
+**Purpose:** Introduce the concepts progressively, using short labelled definitions, displayed notation, and the n-queens problem as a running example. Keep implementation details and the full MPVRP-CC specification in Methodology.
 
-### 3.1 Routing Problems
+### 3.1 Combinatorial optimization
 
-Suggested subsections: **Traveling Salesman Problem**, **Vehicle Routing Problem**, **Relevant VRP Variants**.
+Define variables, domains (binary, integer, continuous), constraints, assignments, feasible solutions, objectives, and optimal solutions. Distinguish CSP from COP using the feasible set and a minimization expression. Introduce n-queens with one row variable per column. Explain P, NP, NP-hard and NP-complete without suggesting NP means non-polynomial or that ordinary n-queens establishes hardness. Reserve space for the author's Problem → Problem definition → Models → General-purpose solver diagram.
 
-**What to say:** Define graphs, nodes, arcs, tours, routes, and costs. Explain the progression from one tour to a fleet and then repeated trips. Briefly explain multi-product and rich-routing features. Introduce sequence-dependent costs as a general idea, including the distinction between cost and duration.
+**Sources:** `rossi2006handbook`, `cornell2015complexity`.
 
-**How to say it:** Use short definitions and one illustration. Explain what a trip means in the cited multi-trip literature and state your convention explicitly; do not silently equate every literature tour with your open mini-trip. Avoid a lengthy history of TSP.
+### 3.2 Solution methods
 
-**Sources:** `flood1956tsp`, `toth2014vehicle`, `cattaruzza2016multipletrips`, `lahyani2015taxonomy`, `haase1994setup` where needed. Flood's article is from 1956, not 1965.
+Present heuristics and metaheuristics, nearest neighbor, 2-opt, and a greedy n-queens example that can fail. Introduce LP and MILP with standard notation, then relaxation, branch-and-bound and branch-and-cut. Explain CP through arithmetic, logical and global constraints; filtering, propagation, inconsistency; systematic search and branching. Give a compact AllDifferent n-queens model, then successor variables. End with a brief explanation of sequence-variable domains, node status, insertion, and associated constraints.
 
-### 3.2 Optimization Methods
+**Sources:** `laporte2000heuristics`, `shaw1998constraint`, `gurobiDocs`, `rossi2006handbook`, `vismara2018circuit`, `delecluse2025sequence`.
 
-Suggested subsections: **Mathematical Programming** and **Heuristics**.
+### 3.3 Routing problems
 
-**What to say:** Introduce decision variables, objectives, constraints, and MILP. Explain the difference between an exact formulation and a run that proves optimality. Introduce construction heuristics, improvement heuristics, and hybrid methods. Briefly explain best-fit packing, nearest neighbor, and 2-opt as used later.
+Move from the foundational TSP work of Dantzig, Fulkerson and Johnson to the VRP contribution of Dantzig and Ramser. Define graph, customer, depot, fleet, cost and capacity notation. Explain homogeneous/heterogeneous and fixed/variable fleets. Briefly present capacity, multiple trips, multiple products, split deliveries, and depot stocks. Distinguish limited stock from full multi-period inventory routing. End by identifying the combination represented by MPVRP-CC and referring to Problem definition for its precise assumptions.
 
-**How to say it:** Give the principle of each method before its adaptation. Do not present API calls here. Explain that your internal ordering is an open path if that is how it is implemented. Do not claim heuristic guarantees without evidence.
-
-**Sources:** `toth2014vehicle`, `laporte2000heuristics`; `sacramento2020feeder` for hybrid context. Add original algorithm references if making a detailed historical or theoretical claim beyond these surveys.
-
-### 3.3 Constraint Programming
-
-Suggested subsections: **Basic Concepts**, **Routing Models**, **Sequence Variables**.
-
-**What to say:** Explain variables, domains, constraints, propagation, search, and optimization. Briefly introduce circuit/successor and other routing representations, then explain the insertion-based sequence variables used in your work: membership, ordering, possible insertions, and endpoints.
-
-**How to say it:** Use one domain-reduction example and one partial sequence. Distinguish a constraint's meaning from the strength of its propagator. Avoid confusing insertion-based sequence variables with similarly named scheduling constructs. Keep detailed cost integration in Section 4.3.
-
-**Sources:** `rossi2006handbook`, `vali2017mtsp`, `vismara2018circuit`, `delecluse2022sequence`, `delecluse2025sequence`. Use `maxicp` and `maxicpDocs` when discussing solver-specific behavior.
+**Sources:** `dantzig1954tsp`, `dantzig1959truck`, `toth2014vehicle`, `cattaruzza2016multipletrips`, `lahyani2015taxonomy`.
 
 ## 4. Methodology
 
